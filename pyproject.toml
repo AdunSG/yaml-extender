@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=36.2.2", "wheel>=0.28.0"]
+
+[project]
+name = "yaml-extender"
+version = 0.0.1
+description = "Extends the common .yaml syntax to provide more complex configuration options"
+urls = ["https://github.com/AdunSG/yaml-extender"]
+authors = [
+  {name = "Simon Gallitscher", email = "adun.sg@gmx.de"}
+]
+readme = "README.rst"
+license = {file = "LICENSE.txt"}
+keywords = ["yaml", "configuration", "extension"]
+dependencies = [
+  "pyyaml"
+]
+
+[project.optional-dependencies]
+test = [
+  "coverage",
+  "pytest"
+]
+
+[tool.towncrier]
+package = "yaml-extender"
+package_dir = "src"
+filename = "CHANGELOG.rst"
+directory = "news/"
+title_format = "{version} ({project_date})"
+issue_format = "`#{issue} <https://github.com/AdunSG/yaml-extender/issues/{issue}>`_"
+template = "tasks/CHANGELOG.rst.jinja2"
+
+  [[tool.towncrier.type]]
+  directory = "feature"
+  name = "Features"
+  showcontent = true
+
+  [[tool.towncrier.type]]
+  directory = "bugfix"
+  name = "Bug Fixes"
+  showcontent = true
+
+  [[tool.towncrier.type]]
+  directory = "trivial"
+  name = "Trivial Changes"
+  showcontent = false
+
+  [[tool.towncrier.type]]
+  directory = "removal"
+  name = "Removals and Deprecations"
+  showcontent = true
+
+[tool.flake8]
+exclude = ".git,__pycache__,docs/,*.egg,build,data"
+select = E,W,F
+ignore = """
+    # The default ignore list:
+    E121,E123,E126,E226,E24,E704,
+    # Our additions:
+    # E127: continuation line over-indented for visual indent
+    # E128: continuation line under-indented for visual indent
+    # E129: visually indented line with same indent as next logical line
+    # E222: multiple spaces after operator
+    # E231: missing whitespace after ","
+    # E402: module level import not at top of file
+    # E501: line too long
+    E127,E128,E129,E222,E231,E402,E501"""
+
+[tool.isort]
+atomic=true
+lines_after_imports=2
+lines_between_types=1
+multi_line_output=5
+not_skip="__init__.py"
+ignore_trailing_comma=true
