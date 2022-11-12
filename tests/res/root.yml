@@ -1,0 +1,12 @@
+variable_1: value1
+dict_1:
+  - xyml.include: inc1.yaml
+  - subval_a: 0
+    subval_b: abc
+  - subval_a: 1
+    subval_b: xyz
+  - xyml.include: inc2.yaml
+
+dict_2:
+  - element: 123
+  - include: inc3.yml<<override=3>>
