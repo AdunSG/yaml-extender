@@ -1,2 +1,3 @@
-  - subval_a: 3
-    subval_b: AAAA
+subdict_a:
+  subval_b: BBBB
+  subval_c: CCCC

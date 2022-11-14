@@ -103,3 +103,6 @@ venv.bak/
 .mypy_cache/
 .vscode/
 .idea/
+
+# Testing artifacts
+tests/res/*.tmp

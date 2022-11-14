@@ -1,5 +1,0 @@
-element: 123
-subval_a: 1
-subval_b: xyz
-variable_1: value1
-xyml.include: inc2.yaml

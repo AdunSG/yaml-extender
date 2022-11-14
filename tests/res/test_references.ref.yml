@@ -1,0 +1,12 @@
+variable_1: value1
+variable_2: value2
+
+dict_1:
+  - subval_a: value1
+    subval_b: abc
+  - subval_a: value2
+    subval_b: xyz
+
+dict_2:
+  - element: 123
+  - element: value1
