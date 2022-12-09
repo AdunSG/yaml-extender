@@ -4,10 +4,6 @@ import yaml
 from src.yaml_extender.resolver.reference_resolver import ReferenceResolver
 
 
-res_path = pathlib.Path(__file__).parent.parent / "res"
-out_suffix = ".tmp"     # Will get ignored by git
-
-
 def test_basic_ref():
     content = yaml.safe_load("""
 ref_val_1: 123

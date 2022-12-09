@@ -1,17 +1,7 @@
-import pathlib
-import difflib
-from typing import Iterator
 from unittest import mock
-
 import yaml
-import pytest
 
 from src.yaml_extender.resolver.include_resolver import IncludeResolver
-from src.yaml_extender.xyml_exception import RecursiveReferenceError, ReferenceNotFoundError
-
-
-res_path = pathlib.Path(__file__).parent.parent / "res"
-out_suffix = ".tmp"     # Will get ignored by git
 
 
 @mock.patch('src.yaml_extender.yaml_loader.load')
