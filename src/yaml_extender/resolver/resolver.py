@@ -22,7 +22,7 @@ class Resolver(abc.ABC):
         """Makes it easier to use Resolver from other Resolvers"""
         return cls(other.root_yaml, other.fail_on_resolve)
 
-    def resolve(self, content: dict, config: dict = None) -> dict:
+    def resolve(self, content: Any, config: dict = None) -> dict:
         if not config:
             config = content
         return self.__resolve(content, config)

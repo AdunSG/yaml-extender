@@ -27,68 +27,71 @@ class ReferenceResolver(Resolver):
             for i, x in enumerate(cur_value):
                 cur_value[i] = self._Resolver__resolve(x, config)
         else:
-            new_value = self.get_reference(cur_value, config)
+            new_value = self.resolve_reference(cur_value, config)
         return new_value
 
-    def get_reference(self, value: Any, config: dict, depth: int = 0) -> Any:
+    def resolve_reference(self, value: Any, config: dict, depth: int = 0) -> Any:
         if not isinstance(value, str) or "{" not in value:
             return value
         if depth > 30:
             raise RecursiveReferenceError(value)
         new_value = value
         # In order to store the full match the whole regex is packed into a group
-        full_match_regex = f"(?:{REFERENCE_REGEX})"
-        ref_match = re.search(full_match_regex, value)
-        ref = ref_match.group(1).strip()
-        default_value = ref_match.group(2)
-        if default_value:
-            default_value = default_value.strip()
-        failed = ""
-        current_config = config
-        for subref in ref.split('.'):
-            # Resolve arrays
-            arr_match = re.match(ARRAY_REGEX, subref)
-            if arr_match:
-                array_name = arr_match[1]
-                try:
-                    index = int(arr_match[2])
-                except TypeError:
-                    raise TypeError(f"Unable to convert index of '{subref}' to integer.")
-                if array_name in current_config:
-                    if len(current_config[array_name]) > index:
-                        current_config = current_config[array_name][index]
+        for ref_match in re.finditer(REFERENCE_REGEX, value):
+            ref = ref_match.group(1).strip()
+            default_value = ref_match.group(2)
+            if default_value:
+                default_value = default_value.strip()
+            failed = ""
+            current_config = config
+            for subref in ref.split('.'):
+                # Resolve arrays
+                arr_match = re.match(ARRAY_REGEX, subref)
+                if arr_match:
+                    array_name = arr_match[1]
+                    try:
+                        index = int(arr_match[2])
+                    except TypeError:
+                        raise TypeError(f"Unable to convert index of '{subref}' to integer.")
+                    if array_name in current_config:
+                        if len(current_config[array_name]) > index:
+                            current_config = current_config[array_name][index]
+                        else:
+                            failed = array_name + f"[{index}]"
+                            break
                     else:
-                        failed = array_name + f"[{index}]"
+                        failed = array_name
                         break
                 else:
-                    failed = array_name
-                    break
-            else:
-                if subref in current_config:
-                    current_config = current_config[subref]
+                    if subref in current_config:
+                        current_config = current_config[subref]
+                    else:
+                        failed = subref
+                        break
+            if failed:
+                if default_value:
+                    ref_val = default_value
+                elif self.fail_on_resolve:
+                    raise ReferenceNotFoundError(failed)
                 else:
-                    failed = subref
-                    break
-        if failed:
-            if default_value:
-                ref_val = default_value
-            elif self.fail_on_resolve:
-                raise ReferenceNotFoundError(failed)
+                    ref_val = None
             else:
                 ref_val = current_config
-        else:
-            ref_val = current_config
-            # if len(current_config) > 1:
-            #     raise ExtYamlSyntaxError(
-            #         f"Unable to resolve {value}.The referenced value contains more than 1 element."
-            #     )
-            # ref_val = list(current_config.values())[0]
-        if ref_match.group(0) == value:
-            # Reference string is just one reference, therefore the retrieved value can be returned directly
-            return ref_val
-        else:
-            # Replace the reference string with the value
-            new_value = new_value.replace(ref_match.group(0), str(ref_val))
-            # Resolve consecutive and recursive references
-            new_value = self.get_reference(new_value, config, depth + 1)
-            return new_value
+
+            if ref_val:
+            # if ref_match.group(0) == value:
+            #     # Reference string is just one reference, therefore the retrieved value can be returned directly
+            #     return ref_val
+            # else:
+                # Replace the reference string with the value
+                new_value = new_value.replace(ref_match.group(0), str(ref_val))
+
+        if new_value == value:
+            if self.fail_on_resolve:
+                raise ReferenceNotFoundError(value)
+            else:
+                return value
+
+        # Resolve recursive references
+        new_value = self.resolve_reference(new_value, config, depth + 1)
+        return new_value

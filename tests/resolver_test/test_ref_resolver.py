@@ -1,4 +1,3 @@
-import pathlib
 import yaml
 
 from src.yaml_extender.resolver.reference_resolver import ReferenceResolver

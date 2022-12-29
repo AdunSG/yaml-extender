@@ -103,4 +103,62 @@ file2.yaml::
 For loops
 -------
 
-tbd
+Certain entries in your config can be repeated based on array values in you config.
+You can directly repeat dictionary values by adding a ``xyml.loop`` statement.
+Of course subvalues can be accessed in the same way as in normal references.
+
+**Example:**::
+
+    array_1:
+    - value: abc
+      path: first/path
+    - value: xyz
+      path: second/path
+
+    commands:
+      xyml.for: iterator:array_1
+      cmd: sh {{ iterator.value }}
+      from: "{{ iterator.path }}"
+
+
+will result in::
+
+    array_1:
+    - value: abc
+      path: first/path
+    - value: xyz
+      path: second/path
+
+    commands:
+    - cmd: sh abc
+      from: first/path
+    - cmd: sh xyz
+      from: second/path
+
+
+
+Flat Loops
+~~~~~~~~~~
+Loops can also flatten itself. If you want to repeat arrays you can use the keyword ``xyml.content`` to provide the content of the loop.
+
+**Example**::
+
+    array_1:
+    - abc
+    - xyz
+    commands:
+      xyml.for: iterator:array_1
+      xyml.content:
+      - cmd: sh {{ iterator }}
+      - cmd: echo {{ iterator }}
+
+Will result in::
+
+    array_1:
+    - abc
+    - xyz
+    commands:
+      - cmd: sh abc
+      - cmd: echo abc
+      - cmd: sh xyz
+      - cmd: echo xyz

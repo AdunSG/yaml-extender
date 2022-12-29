@@ -1,31 +1,117 @@
-import pathlib
-import difflib
-from typing import Iterator
-from unittest import mock
-
 import yaml
-import pytest
 
-from src.yaml_extender.resolver.include_resolver import IncludeResolver
-from src.yaml_extender.xyml_exception import RecursiveReferenceError, ReferenceNotFoundError
+from src.yaml_extender.resolver.loop_resolver import LoopResolver
 
 
-@mock.patch('src.yaml_extender.yaml_loader.load')
-def test_basic_include(load_func):
+def test_loop_basic():
     content = yaml.safe_load("""
-dict_1:
-  subvalue_1: abc
-  xyml.include: inc.yaml
+array_1:
+- abc
+- xyz
+commands:
+  xyml.for: iterator:array_1
+  cmd: sh {{ iterator }}
+  from: curDir
 """)
     expected = yaml.safe_load("""
-    dict_1:
-      subvalue_1: abc
-      subvalue_2: xyz
-      subvalue_3: 123
-    """)
-    load_func.return_value = {"subvalue_2": "xyz", "subvalue_3": 123}
-    inc_resolver = IncludeResolver("root.yaml")
-    result = inc_resolver.resolve(content)
+array_1:
+- abc
+- xyz
+commands:
+- cmd: sh abc
+  from: curDir
+- cmd: sh xyz
+  from: curDir
+""")
+    loop_resolver = LoopResolver("root.yaml")
+    result = loop_resolver.resolve(content)
+    assert result == expected
 
-    assert load_func.call_args[0][0] == "inc.yaml"
+
+def test_loop_subvalue():
+    content = yaml.safe_load("""
+array_1:
+- value: abc
+  path: first/path
+- value: xyz
+  path: second/path
+
+commands:
+  xyml.for: iterator:array_1
+  cmd: sh {{ iterator.value }}
+  from: "{{ iterator.path }}"
+""")
+    expected = yaml.safe_load("""
+array_1:
+- value: abc
+  path: first/path
+- value: xyz
+  path: second/path
+
+commands:
+- cmd: sh abc
+  from: first/path
+- cmd: sh xyz
+  from: second/path
+""")
+    loop_resolver = LoopResolver("root.yaml")
+    result = loop_resolver.resolve(content)
+    assert result == expected
+
+
+def test_flat_loop():
+    content = yaml.safe_load("""
+array_1:
+- abc
+- xyz
+commands:
+  xyml.for: iterator:array_1
+  xyml.content:
+  - cmd: sh {{ iterator }}
+  - cmd: echo {{ iterator }}
+""")
+    expected = yaml.safe_load("""
+array_1:
+- abc
+- xyz
+commands:
+  - cmd: sh abc
+  - cmd: echo abc
+  - cmd: sh xyz
+  - cmd: echo xyz
+""")
+    loop_resolver = LoopResolver("root.yaml")
+    result = loop_resolver.resolve(content)
+    assert result == expected
+
+
+def test_stacked_loop():
+    content = yaml.safe_load("""
+array_1:
+- abc
+- xyz
+array_2:
+- 123
+- 456
+commands:
+  xyml.for: i:array_1
+  xyml.content:
+    xyml.for: j:array_2
+    cmd: sh {{ i }} {{ j }}
+""")
+    expected = yaml.safe_load("""
+array_1:
+- abc
+- xyz
+array_2:
+- 123
+- 456
+commands:
+- cmd: sh abc 123
+- cmd: sh abc 456
+- cmd: sh xyz 123
+- cmd: sh xyz 456
+""")
+    loop_resolver = LoopResolver("root.yaml")
+    result = loop_resolver.resolve(content)
     assert result == expected
