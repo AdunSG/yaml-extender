@@ -10,7 +10,7 @@ References
 -------
 
 Yaml values can be referenced by using ``{{ref}}``
-Additionally a default value can be given using a colon symbol withint he reference ``{{ref:default}}``
+Additionally a default value can be given using a colon symbol within the reference ``{{ref:default}}``
 
 **Simple Example**::
 
@@ -55,7 +55,14 @@ Results in::
         config: second.cfg
 
 
-Also you can use default
+Also you can use default values by giving a value separated by a colon.
+Example::
+
+    ref_val_1: {{ not_existing:123 }}
+
+results in::
+
+    ref_val_1: 123
 
 
 Includes

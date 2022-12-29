@@ -125,6 +125,40 @@ dict_1:
     assert result == expected
 
 
+def test_numeric_default_value():
+    content = yaml.safe_load("""
+ref_val_1: abc
+ref_val_2: "{{ not_existing:123 }}"
+""")
+    expected = yaml.safe_load("""
+ref_val_1: abc
+ref_val_2: 123
+""")
+    ref_resolver = ReferenceResolver("root.yaml")
+    result = ref_resolver.resolve(content)
+
+    assert result == expected
+
+
+def test_null_default_value():
+    content = yaml.safe_load("""
+ref_val_1: 123
+dict_1:
+  subvalue_1: abc
+  subvalue_2: my_str_{{ref_val_2:}}
+""")
+    expected = yaml.safe_load("""
+ref_val_1: 123
+dict_1:
+  subvalue_1: abc
+  subvalue_2: my_str_
+""")
+    ref_resolver = ReferenceResolver("root.yaml")
+    result = ref_resolver.resolve(content)
+
+    assert result == expected
+
+
 def test_array_default_value():
     content = yaml.safe_load("""
 ref_val_1: "{{array_1[4]:default}}"

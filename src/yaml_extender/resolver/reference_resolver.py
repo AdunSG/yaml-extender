@@ -7,7 +7,7 @@ from typing import Any
 from src.yaml_extender.resolver.resolver import Resolver
 from src.yaml_extender.xyml_exception import RecursiveReferenceError, ReferenceNotFoundError, ExtYamlSyntaxError
 
-REFERENCE_REGEX = r'\{\{(.+?)(?::(.+?))?\}\}'
+REFERENCE_REGEX = r'\{\{(.+?)(?::(.*?))?\}\}'
 ARRAY_REGEX = r'(.*)?\[(\d*)\]'
 MAXIMUM_REFERENCE_DEPTH = 30
 
@@ -41,7 +41,7 @@ class ReferenceResolver(Resolver):
             ref = ref_match.group(1).strip()
             default_value = ref_match.group(2)
             if default_value:
-                default_value = default_value.strip()
+                default_value = number_parse(default_value.strip())
             failed = ""
             current_config = config
             for subref in ref.split('.'):
@@ -69,7 +69,7 @@ class ReferenceResolver(Resolver):
                         failed = subref
                         break
             if failed:
-                if default_value:
+                if default_value is not None:
                     ref_val = default_value
                 elif self.fail_on_resolve:
                     raise ReferenceNotFoundError(failed)
@@ -78,13 +78,14 @@ class ReferenceResolver(Resolver):
             else:
                 ref_val = current_config
 
-            if ref_val:
-            # if ref_match.group(0) == value:
-            #     # Reference string is just one reference, therefore the retrieved value can be returned directly
-            #     return ref_val
-            # else:
-                # Replace the reference string with the value
-                new_value = new_value.replace(ref_match.group(0), str(ref_val))
+            if ref_val is not None:
+                if ref_match.group(0) == value:
+                    # If the whole string is just a reference return the value without string replacement
+                    # in order to preserve float & int types
+                    return ref_val
+                else:
+                    # Replace the reference string with the value
+                    new_value = new_value.replace(ref_match.group(0), str(ref_val))
 
         if new_value == value:
             if self.fail_on_resolve:
@@ -95,3 +96,13 @@ class ReferenceResolver(Resolver):
         # Resolve recursive references
         new_value = self.resolve_reference(new_value, config, depth + 1)
         return new_value
+
+
+def number_parse(s: str):
+    try:
+        return int(s)
+    except ValueError:
+        try:
+            return float(s)
+        except ValueError:
+            return s
