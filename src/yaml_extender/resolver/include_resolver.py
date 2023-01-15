@@ -94,7 +94,7 @@ class IncludeResolver(Resolver):
         if isinstance(include, list):
             if isinstance(content, dict):
                 content = [content]
-            content.append(include)
+            content.extend(include)
         elif isinstance(include, dict):
             if isinstance(content, list):
                 content.append(include)

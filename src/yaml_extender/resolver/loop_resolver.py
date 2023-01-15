@@ -31,7 +31,14 @@ class LoopResolver(Resolver):
                 new_value = self.resolve_loop(cur_value[LOOP_KEY], new_value, config)
         elif isinstance(cur_value, list):
             for i, x in enumerate(cur_value):
-                cur_value[i] = self._Resolver__resolve(x, config)
+                resolved_loop_content = self._Resolver__resolve(x, config)
+                if isinstance(resolved_loop_content, list):
+                    # Keep list flat; don't create list of lists
+                    del new_value[i]
+                    for value in resolved_loop_content:
+                        new_value.insert(i, value)
+                else:
+                    new_value[i] = resolved_loop_content
         return new_value
 
     def resolve_loop(self, loop_desc, loop_content, config):

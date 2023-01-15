@@ -1,0 +1,9 @@
+- name: Start
+  cmd: generate.sh {{ feature }} {{ customer }}
+  executionOrder: "{{ executionOrder }}"
+  xyml.for: feature:features
+- name: Archive
+  cmd: 7za a -t7z files.7z *.txt
+  path: build/{{ feature }}
+  executionOrder: "{{ executionOrder + 1}}"
+  xyml.for: feature:features

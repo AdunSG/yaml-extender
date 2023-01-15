@@ -18,6 +18,9 @@ class XYmlFile:
         self.content = yaml_loader.load(str(self.filepath))
         self.content = self.resolve()
 
+    def __repr__(self):
+        return yaml.dump(self.content)
+
     def resolve(self):
         inc_resolver = IncludeResolver(self.filepath, False)
         processed_content = inc_resolver.resolve(self.content)

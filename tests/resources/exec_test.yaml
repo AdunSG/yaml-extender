@@ -1,0 +1,9 @@
+- name: Start
+  cmd: test.sh {{ test }} {{ customer }}
+  executionOrder: "{{ executionOrder }}"
+  xyml.for: test:tests
+- name: Archive
+  cmd: 7za a -t7z files.7z *.txt
+  path: build/test/{{ test }}/*.log
+  executionOrder: "{{ executionOrder+1 }}"
+  xyml.for: test:tests

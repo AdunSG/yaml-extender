@@ -1,0 +1,53 @@
+customer: simon
+features:
+- references
+- includes
+- loops
+project: yaml-extender
+tests:
+- test_references
+- test_includes
+- test_loops
+todos:
+- cmd: generate.sh loops simon
+  executionOrder: 1
+  name: Start
+- cmd: generate.sh includes simon
+  executionOrder: 1
+  name: Start
+- cmd: generate.sh references simon
+  executionOrder: 1
+  name: Start
+- cmd: 7za a -t7z files.7z *.txt
+  executionOrder: 2
+  name: Archive
+  path: build/loops
+- cmd: 7za a -t7z files.7z *.txt
+  executionOrder: 2
+  name: Archive
+  path: build/includes
+- cmd: 7za a -t7z files.7z *.txt
+  executionOrder: 2
+  name: Archive
+  path: build/references
+- cmd: test.sh test_loops simon
+  executionOrder: 2
+  name: Start
+- cmd: test.sh test_includes simon
+  executionOrder: 2
+  name: Start
+- cmd: test.sh test_references simon
+  executionOrder: 2
+  name: Start
+- cmd: 7za a -t7z files.7z *.txt
+  executionOrder: 3
+  name: Archive
+  path: build/test/test_loops/*.log
+- cmd: 7za a -t7z files.7z *.txt
+  executionOrder: 3
+  name: Archive
+  path: build/test/test_includes/*.log
+- cmd: 7za a -t7z files.7z *.txt
+  executionOrder: 3
+  name: Archive
+  path: build/test/test_references/*.log

@@ -1,0 +1,15 @@
+customer: simon
+project: yaml-extender
+features:
+- references
+- includes
+- loops
+tests:
+  xyml.for: feature:features
+  xyml.content:
+  - test_{{ feature }}
+
+todos:
+  xyml.include:
+  - exec.yaml<<executionOrder=1>>
+  - exec_test.yaml<<executionOrder=2>>
