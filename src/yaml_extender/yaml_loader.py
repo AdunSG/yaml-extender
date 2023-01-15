@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 import yaml
 
@@ -21,3 +20,13 @@ def load(path: str) -> dict:
     with open(valid_path, 'r') as file:
         content = yaml.safe_load(file)
     return content
+
+
+def parse_numeric_value(value: str):
+    try:
+        return int(value)
+    except ValueError:
+        try:
+            return float(value)
+        except ValueError:
+            return value

@@ -1,15 +1,47 @@
 from __future__ import annotations
 
+import ast
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
+from src.yaml_extender import yaml_loader
 from src.yaml_extender.resolver.resolver import Resolver
 from src.yaml_extender.xyml_exception import RecursiveReferenceError, ReferenceNotFoundError, ExtYamlSyntaxError
 
 REFERENCE_REGEX = r'\{\{(.+?)(?::(.*?))?\}\}'
 ARRAY_REGEX = r'(.*)?\[(\d*)\]'
+
 MAXIMUM_REFERENCE_DEPTH = 30
+
+
+class ArithmeticOperation:
+
+    SUPPORTED_FUNCS = {"+": lambda x, y: x + y,
+                       "-": lambda x, y: x - y,
+                       "*": lambda x, y: x * y,
+                       "/": lambda x, y: x / y}
+    ARITHMETIC_REGEX = r'(.+)([' + ''.join(["\\" + k for k in SUPPORTED_FUNCS.keys()]) + r'])\s*(\d+)'
+
+    def __init__(self, reference: str, operation: str, value: str):
+        self.reference = reference.strip()
+        self.operation = operation.strip()
+        self.value = yaml_loader.parse_numeric_value(value.strip())
+
+    def __repr__(self):
+        return f"{self.reference} {self.operation} {self.value}"
+
+    def apply(self, value):
+        num_val = yaml_loader.parse_numeric_value(value)
+        return ArithmeticOperation.SUPPORTED_FUNCS[self.operation](self.value, num_val)
+
+    @staticmethod
+    def parse(expression: str) -> Optional[ArithmeticOperation]:
+        match = re.search(ArithmeticOperation.ARITHMETIC_REGEX, expression)
+        if match:
+            return ArithmeticOperation(match[1], match[2], match[3])
+        else:
+            return None
 
 
 class ReferenceResolver(Resolver):
@@ -44,6 +76,11 @@ class ReferenceResolver(Resolver):
                 default_value = number_parse(default_value.strip())
             failed = ""
             current_config = config
+            # Resolve arithmetic operation
+            operation = ArithmeticOperation.parse(ref)
+            if operation:
+                ref = operation.reference
+            # Resolve reference, including subrefs
             for subref in ref.split('.'):
                 # Resolve arrays
                 arr_match = re.match(ARRAY_REGEX, subref)
@@ -79,6 +116,8 @@ class ReferenceResolver(Resolver):
                 ref_val = current_config
 
             if ref_val is not None:
+                if operation:
+                    ref_val = operation.apply(ref_val)
                 if ref_match.group(0) == value:
                     # If the whole string is just a reference return the value without string replacement
                     # in order to preserve float & int types

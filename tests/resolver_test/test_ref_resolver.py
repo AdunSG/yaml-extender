@@ -198,3 +198,30 @@ dict_1:
 
     assert result == expected
 
+
+def test_arithmetic_ref():
+    content = yaml.safe_load("""
+value_1: 1
+value_2: {{value_1+1}}
+""")
+    expected = yaml.safe_load("""
+value_1: 1
+value_2: 2
+""")
+    ref_resolver = ReferenceResolver("root.yaml")
+    result = ref_resolver.resolve(content)
+
+    assert result == expected
+
+    content = yaml.safe_load("""
+    value_1: 1
+    value_2: string_{{value_1+1}}
+    """)
+    expected = yaml.safe_load("""
+    value_1: 1
+    value_2: string_2
+    """)
+    ref_resolver = ReferenceResolver("root.yaml")
+    result = ref_resolver.resolve(content)
+
+    assert result == expected

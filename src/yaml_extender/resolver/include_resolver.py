@@ -61,14 +61,14 @@ class IncludeResolver(Resolver):
         return cur_value
 
     def __resolve_include_statement(self, value: List | str, original_file: Path, config: dict) -> dict:
-        """Resolves a single include statement and return the content"""
+        """Resolves an include statement and return the content"""
         if not isinstance(value, list):
             statements = [value]
         else:
             statements = value
         # Resolve all references in statement
         ref_resolver = ReferenceResolver.from_resolver(self)
-        inc_contents = {}
+        inc_contents = None
         for statement in statements:
             statement = ref_resolver.resolve(statement, config)
             # Resolve include parameters
@@ -84,8 +84,25 @@ class IncludeResolver(Resolver):
             # Add include content to current content
             inc_resolver = IncludeResolver(inc_file, self.fail_on_resolve)
             inc_content = inc_resolver.__resolve_inc(inc_content, config, original_file)
-            inc_contents.update(inc_content)
+            inc_contents = self.update_inc_content(inc_contents, inc_content)
         return inc_contents
+
+    def update_inc_content(self, content, include):
+        """Adds include content to existing content based on current datatype"""
+        if content is None:
+            return include
+        if isinstance(include, list):
+            if isinstance(content, dict):
+                content = [content]
+            content.append(include)
+        elif isinstance(include, dict):
+            if isinstance(content, list):
+                content.append(include)
+            else:
+                content.update(include)
+        else:
+            raise ExtYamlSyntaxError("Resolved include content is not of list or dict type.")
+        return content
 
     def __parse_include_parameters(self, param_string: str) -> dict:
         """Parses an include parameter string into a dict"""
@@ -94,7 +111,7 @@ class IncludeResolver(Resolver):
             key, value = param.split("=")
             if not key or not value:
                 raise ExtYamlSyntaxError(f"Invalid parameter string {param_string}")
-            parameters[key.strip()] = value.strip()
+            parameters[key.strip()] = yaml_loader.parse_numeric_value(value.strip())
         return parameters
 
     def __read_included_yaml(self, file_path: str, original_file: Path = ""):
