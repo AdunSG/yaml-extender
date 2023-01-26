@@ -1,6 +1,12 @@
+import os
+from pathlib import Path
+
 import yaml
+from unittest.mock import patch
 
 from src.yaml_extender.resolver.reference_resolver import ReferenceResolver
+from src.yaml_extender.xyml_file import XYmlFile
+from src.yaml_extender import yaml_loader
 
 
 def test_basic_ref():
@@ -202,7 +208,7 @@ dict_1:
 def test_arithmetic_ref():
     content = yaml.safe_load("""
 value_1: 1
-value_2: {{value_1+1}}
+value_2: "{{value_1+1}}"
 """)
     expected = yaml.safe_load("""
 value_1: 1
@@ -225,3 +231,56 @@ value_2: 2
     result = ref_resolver.resolve(content)
 
     assert result == expected
+
+
+@patch('src.yaml_extender.yaml_loader.load')
+def test_env_ref(loader_mock):
+    os.environ["TEST_VAL"] = "123"
+    content = yaml.safe_load("""
+value_1: 1
+value_2: "{{ xyml.env.TEST_VAL}}"
+""")
+    loader_mock.return_value = content
+    file = XYmlFile(Path.cwd())
+    expected = yaml.safe_load("""
+value_1: 1
+value_2: "123"
+""")
+    assert file.content == expected
+
+    # Test as default value
+    content = yaml.safe_load("""
+    value_1: 1
+    value_2: "{{ undefined_value:{{ xyml.env.TEST_VAL}}}}"
+    """)
+    loader_mock.return_value = content
+    file = XYmlFile(Path.cwd())
+    assert file.content == expected
+
+
+@patch('src.yaml_extender.yaml_loader.load')
+def test_param_ref(loader_mock):
+    content = yaml.safe_load("""
+    value_1: 1
+    value_2: "{{ xyml.param.test_param}}"
+    """)
+    loader_mock.return_value = content
+    file = XYmlFile(Path.cwd(), {"test_param": 123})
+    expected = yaml.safe_load("""
+    value_1: 1
+    value_2: 123
+    """)
+
+    assert file.content == expected
+
+    # Test as default value
+    content = yaml.safe_load("""
+    value_1: 1
+    value_2: "{{ undefined_value:{{ xyml.param.test_param}}}}"
+    """)
+    loader_mock.return_value = content
+    file = XYmlFile(Path.cwd(), {"test_param": 123})
+    assert file.content == expected
+
+
+

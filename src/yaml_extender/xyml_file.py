@@ -1,3 +1,6 @@
+import os
+from typing import Dict
+
 import yaml
 
 from pathlib import Path
@@ -7,12 +10,14 @@ from src.yaml_extender.resolver.include_resolver import IncludeResolver
 from src.yaml_extender.resolver.loop_resolver import LoopResolver
 from src.yaml_extender.resolver.reference_resolver import ReferenceResolver
 
-context = None
+ENV_KEY = "env"
+PARAM_KEY = "param"
 
 
 class XYmlFile:
 
-    def __init__(self, filepath: Path):
+    def __init__(self, filepath: Path, params: Dict = None):
+        self.params = params
         self.filepath = filepath.absolute()
         self.root_dir = filepath.parent
         self.content = yaml_loader.load(str(self.filepath))
@@ -26,8 +31,13 @@ class XYmlFile:
         processed_content = inc_resolver.resolve(self.content)
         loop_resolver = LoopResolver(self.filepath, False)
         processed_content = loop_resolver.resolve(processed_content)
+        # Extend config for resolution by ENV and PARAM statements
+        config = processed_content.copy()
+        config["xyml"] = {}
+        config["xyml"][ENV_KEY] = os.environ
+        config["xyml"][PARAM_KEY] = self.params
         ref_resolver = ReferenceResolver(self.filepath, False)
-        processed_content = ref_resolver.resolve(processed_content)
+        processed_content = ref_resolver.resolve(processed_content, config)
         return processed_content
 
     def save(self, path: str):

@@ -3,11 +3,13 @@ yaml-extender
 ===============================================================================
 
 Description
--------
-Extends the common .yaml syntax to provide more complex configuration options
+-----------
+Extends the common .yaml syntax to provide more complex configuration options.
+The yaml_extender can be used to resolve the extended yaml syntax as shown in `Usage.rst`_.
+The following options for extended yaml syntax are available.
 
 References
--------
+----------
 
 Yaml values can be referenced by using ``{{ref}}``
 Additionally a default value can be given using a colon symbol within the reference ``{{ref:default}}``
@@ -64,16 +66,40 @@ results in::
 
     ref_val_1: 123
 
+Environment variables
+~~~~~~~~~~~~~~~~~~~~~
+
+In extended yaml syntax environment variables can be referenced using the key ``xyml.env``.
+
+An Environment ENV_VAR variable can be referenced like this::
+
+    my_value: echo environment variable = {{ xyml.env.ENV_VAR}}
+
+.. _parameters:
+Parameters
+~~~~~~~~~~
+In extended yaml syntax additional parameters can be referenced using the key ``xyml.param``.
+
+When including yaml_extender in another python script the parameters can be passed as dictionary when creating a XYmlFile object.
+When using yaml_extender over command line all named parameters will be used to resolve ``xyml.param`` statements.
+
+**Warning**
+Only named parameters are allowed, positional arguments will cause problems.
+
+An parameter given as "--my_param 123" or {"my_param": 123} can be referenced like this::
+
+    my_value: echo This is a parameter {{ xyml.param.my_param }}
+
 
 Includes
--------
+--------
 
 Yaml files can include other .yaml files by using the ``xyml.include: file.yaml`` statement.
 Additionally all reference values within the included file can be overwritten using parameters.
 Parameters are contained within the include statement ``xyml.include: file.yaml<<my_ref=param1>>``
 
 Example
-~~~~~~
+~~~~~~~
 
 root.yaml::
 
@@ -108,7 +134,7 @@ file2.yaml::
 
 
 For loops
--------
+---------
 
 Certain entries in your config can be repeated based on array values in you config.
 You can directly repeat dictionary values by adding a ``xyml.loop`` statement.
