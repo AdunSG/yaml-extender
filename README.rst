@@ -5,7 +5,7 @@ yaml-extender
 Description
 -----------
 Extends the common .yaml syntax to provide more complex configuration options.
-The yaml_extender can be used to resolve the extended yaml syntax as shown in `Usage.rst`_.
+The yaml_extender can be used to resolve the extended yaml syntax as shown in Usage.rst.
 The following options for extended yaml syntax are available.
 
 References
@@ -75,7 +75,9 @@ An Environment ENV_VAR variable can be referenced like this::
 
     my_value: echo environment variable = {{ xyml.env.ENV_VAR}}
 
+
 .. _parameters:
+
 Parameters
 ~~~~~~~~~~
 In extended yaml syntax additional parameters can be referenced using the key ``xyml.param``.
@@ -195,3 +197,4 @@ Will result in::
       - cmd: echo abc
       - cmd: sh xyz
       - cmd: echo xyz
+

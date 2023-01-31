@@ -1,3 +1,5 @@
+.. _usage:
+
 From CLI
 -----------
 
@@ -27,3 +29,6 @@ Example::
     file = XYmlFile("/usr/me/my/file.xyml", {"my_param1": 123, "my_param2": "abc"})
     print(file.content)
     file.save("/usr/me/my/processed.xyml")
+
+
+

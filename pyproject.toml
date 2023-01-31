@@ -1,16 +1,21 @@
 [build-system]
 requires = ["setuptools>=36.2.2", "wheel>=0.28.0"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "yaml-extender"
-version = "0.0.1"
 description = "Extends the common .yaml syntax to provide more complex configuration options"
 authors = [
   {name = "Simon Gallitscher", email = "adun.sg@gmx.de"}
 ]
-readme = "README.rst"
-license = {file = "LICENSE.txt"}
+classifiers = [
+    "License :: BSD 3-Clause License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+license = {file = 'LICENSE'}
 keywords = ["yaml", "configuration", "extension"]
+dynamic = ["version", "readme"]
 dependencies = [
   "pyyaml"
 ]
@@ -18,62 +23,46 @@ dependencies = [
 [project.urls]
 homepage = "https://github.com/AdunSG/yaml-extender"
 
+[project.scripts]
+yaml-extender = "reader.__main__:main"
+
 [project.optional-dependencies]
-test = [
+dev = [
   "coverage",
   "pytest"
 ]
 
-[tool.towncrier]
-package = "yaml-extender"
-package_dir = "src"
-filename = "CHANGELOG.rst"
-directory = "news/"
-title_format = "{version} ({project_date})"
-issue_format = "`#{issue} <https://github.com/AdunSG/yaml-extender/issues/{issue}>`_"
-template = "tasks/CHANGELOG.rst.jinja2"
+[tool.setuptools.dynamic]
+version = {attr = "yaml_extender.__version__"}
+readme = {file = "README.rst"}
 
-  [[tool.towncrier.type]]
-  directory = "feature"
-  name = "Features"
-  showcontent = true
+[tool.coverage.run]
+branch = true
+command_line = "-m pytest"
 
-  [[tool.towncrier.type]]
-  directory = "bugfix"
-  name = "Bug Fixes"
-  showcontent = true
+[tool.coverage.report]
+show_missing = true
+fail_under = 85
 
-  [[tool.towncrier.type]]
-  directory = "trivial"
-  name = "Trivial Changes"
-  showcontent = false
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+isolated_build = true
+min_version = 3.8
+skip_missing_interpreters = true
+envlist = py38,test
 
-  [[tool.towncrier.type]]
-  directory = "removal"
-  name = "Removals and Deprecations"
-  showcontent = true
+[testenv]
+usedevelop=true
+skip_install=true
 
-[tool.flake8]
-exclude = ".git,__pycache__,docs/,*.egg,build,data"
-select = "E,W,F"
-ignore = """
-    # The default ignore list:
-    E121,E123,E126,E226,E24,E704,
-    # Our additions:
-    # E127: continuation line over-indented for visual indent
-    # E128: continuation line under-indented for visual indent
-    # E129: visually indented line with same indent as next logical line
-    # E222: multiple spaces after operator
-    # E231: missing whitespace after ","
-    # E402: module level import not at top of file
-    # E501: line too long
-    E127,E128,E129,E222,E231,E402,E501
+[testenv:test]
+skip_install = false
+deps =
+    coverage
+    pytest
+commands =
+    coverage run --rcfile=pyproject.toml --source src/
+    coverage report --rcfile=pyproject.toml
+
 """
-
-[tool.isort]
-atomic="true"
-lines_after_imports="2"
-lines_between_types="1"
-multi_line_output="5"
-not_skip="__init__.py"
-ignore_trailing_comma="true"
