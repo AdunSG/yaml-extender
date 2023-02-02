@@ -5,9 +5,9 @@ import re
 from pathlib import Path
 from typing import Any
 
-from src.yaml_extender.resolver.reference_resolver import ReferenceResolver
-from src.yaml_extender.resolver.resolver import Resolver
-from src.yaml_extender.xyml_exception import RecursiveReferenceError, ReferenceNotFoundError, ExtYamlSyntaxError
+from yaml_extender.resolver.reference_resolver import ReferenceResolver
+from yaml_extender.resolver.resolver import Resolver
+from yaml_extender.xyml_exception import RecursiveReferenceError, ReferenceNotFoundError, ExtYamlSyntaxError
 
 LOOP_KEY = "xyml.for"
 LOOP_CONTENT_KEY = "xyml.content"

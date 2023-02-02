@@ -5,10 +5,10 @@ import yaml
 
 from pathlib import Path
 
-from src.yaml_extender import yaml_loader
-from src.yaml_extender.resolver.include_resolver import IncludeResolver
-from src.yaml_extender.resolver.loop_resolver import LoopResolver
-from src.yaml_extender.resolver.reference_resolver import ReferenceResolver
+from yaml_extender import yaml_loader
+from yaml_extender.resolver.include_resolver import IncludeResolver
+from yaml_extender.resolver.loop_resolver import LoopResolver
+from yaml_extender.resolver.reference_resolver import ReferenceResolver
 
 ENV_KEY = "env"
 PARAM_KEY = "param"

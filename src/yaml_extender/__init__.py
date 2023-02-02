@@ -1,3 +1,3 @@
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
-from src.yaml_extender.xyml_file import XYmlFile
+from yaml_extender.xyml_file import XYmlFile

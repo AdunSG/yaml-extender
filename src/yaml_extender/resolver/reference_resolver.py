@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import ast
 import re
 from pathlib import Path
 from typing import Any, Optional
 
-from src.yaml_extender import yaml_loader
-from src.yaml_extender.resolver.resolver import Resolver
-from src.yaml_extender.xyml_exception import RecursiveReferenceError, ReferenceNotFoundError, ExtYamlSyntaxError
+from yaml_extender import yaml_loader
+from yaml_extender.resolver.resolver import Resolver
+from yaml_extender.xyml_exception import RecursiveReferenceError, ReferenceNotFoundError, ExtYamlSyntaxError
 
 REFERENCE_REGEX = r'\{\{(.+?)(?::(.*?))?\}\}'
 ARRAY_REGEX = r'(.*)?\[(\d*)\]'

@@ -9,7 +9,7 @@ authors = [
   {name = "Simon Gallitscher", email = "adun.sg@gmx.de"}
 ]
 classifiers = [
-    "License :: BSD 3-Clause License",
+    "License :: OSI Approved :: BSD License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
 ]

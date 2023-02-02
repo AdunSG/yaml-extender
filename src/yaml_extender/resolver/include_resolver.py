@@ -5,11 +5,11 @@ import re
 from pathlib import Path
 from typing import Any, List
 
-from src.yaml_extender.resolver.reference_resolver import ReferenceResolver
-from src.yaml_extender.resolver.resolver import Resolver
-from src.yaml_extender.xyml_exception import ExtYamlSyntaxError
-import src.yaml_extender.logger as logger
-import src.yaml_extender.yaml_loader as yaml_loader
+from yaml_extender.resolver.reference_resolver import ReferenceResolver
+from yaml_extender.resolver.resolver import Resolver
+from yaml_extender.xyml_exception import ExtYamlSyntaxError
+import yaml_extender.logger as logger
+import yaml_extender.yaml_loader as yaml_loader
 
 INCLUDE_REGEX = r'([^<]+)\s*(?:<<(.*)>>)?'
 INCLUDE_KEY = "xyml.include"
