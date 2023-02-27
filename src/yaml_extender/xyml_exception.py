@@ -1,10 +1,14 @@
-class ReferenceNotFoundError(Exception):
+class ExtYamlError(Exception):
+    pass
+
+
+class ReferenceNotFoundError(ExtYamlError):
 
     def __init__(self, reference):
         self.message = f"Unable to resolve {reference}"
 
 
-class ExtYamlSyntaxError(Exception):
+class ExtYamlSyntaxError(ExtYamlError):
     pass
 
 

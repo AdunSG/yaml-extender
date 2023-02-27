@@ -15,6 +15,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input", help="Input yaml file to be parsed", type=Path)
     parser.add_argument("output", help="Output file to save to", type=Path)
+    parser.add_argument("-i", "--include", help="Include paths", type=Path, nargs="*")
     args, unknown_args = parser.parse_known_args()
 
     if not args.input.is_file:

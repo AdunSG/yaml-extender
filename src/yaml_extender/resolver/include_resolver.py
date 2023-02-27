@@ -11,20 +11,27 @@ from yaml_extender.xyml_exception import ExtYamlSyntaxError
 import yaml_extender.logger as logger
 import yaml_extender.yaml_loader as yaml_loader
 
+from src.yaml_extender.xyml_exception import ExtYamlError
+
 INCLUDE_REGEX = r'([^<]+)\s*(?:<<(.*)>>)?'
 INCLUDE_KEY = "xyml.include"
 
 
 class IncludeResolver(Resolver):
 
-    def __init__(self, root_yaml, fail_on_resolve: bool = True):
-        super().__init__(root_yaml, fail_on_resolve)
-        self.root_dir: Path = self.root_yaml.parent
+    def __init__(self, include_dirs: List[Path] | None = None, fail_on_resolve: bool = True):
+        if include_dirs:
+            self.include_dirs: List[Path] = include_dirs
+        else:
+            self.include_dirs: List[Path] = []
+        if Path.cwd() not in self.include_dirs:
+            self.include_dirs.append(Path.cwd())
+        super().__init__(fail_on_resolve)
 
     def _Resolver__resolve(self, cur_value: Any, config: dict) -> dict:
-        return self.__resolve_inc(cur_value, config, self.root_yaml)
+        return self.__resolve_inc(cur_value, config)
 
-    def __resolve_inc(self, cur_value: Any, config: dict, parent_file: Path) -> Any:
+    def __resolve_inc(self, cur_value: Any, config: dict) -> Any:
         """
         Resolves all include statements in value
 
@@ -33,34 +40,16 @@ class IncludeResolver(Resolver):
         """
         if isinstance(cur_value, dict):
             if INCLUDE_KEY in cur_value:
-                include_content = self.__resolve_include_statement(cur_value[INCLUDE_KEY], parent_file, config)
+                include_content = self.__resolve_include_statement(cur_value[INCLUDE_KEY], config)
                 self.update_content_with_include_content(cur_value, include_content)
                 del cur_value[INCLUDE_KEY]
             else:
                 for k, v in cur_value.items():
-                    cur_value[k] = self.__resolve_inc(cur_value[k], config, parent_file)
-
-            # additional_content = {}
-            # for k in cur_value.keys():
-            #     if k == INCLUDE_KEY:
-            #         include_content = self.__resolve_include_statement(cur_value[k], parent_file, config)
-            #         # Filter all values that are already defined in current context
-            #         if isinstance(include_content, dict):
-            #             include_content = self.remove_existing_keys_from_include_content(include_content, cur_value)
-            #             additional_content.update(include_content)
-            #         else:
-            #             # Return includes with primitive content
-            #             return include_content
-            #     else:
-            #         cur_value[k] = self.__resolve_inc(cur_value[k], config, parent_file)
-            # # Update current content with the included
-            # if additional_content:
-            #     del cur_value[INCLUDE_KEY]
-            #     cur_value.update(additional_content)
+                    cur_value[k] = self.__resolve_inc(cur_value[k], config)
         elif isinstance(cur_value, list):
             new_content = []
             for i, x in enumerate(cur_value):
-                new_value = (self.__resolve_inc(x, config, parent_file))
+                new_value = (self.__resolve_inc(x, config))
                 if isinstance(new_value, list):
                     new_content.extend(new_value)
                 else:
@@ -69,14 +58,14 @@ class IncludeResolver(Resolver):
                 cur_value = new_content
         return cur_value
 
-    def __resolve_include_statement(self, value: List | str, original_file: Path, config: dict) -> dict:
+    def __resolve_include_statement(self, value: List | str, config: dict) -> dict:
         """Resolves an include statement and return the content"""
         if not isinstance(value, list):
             statements = [value]
         else:
             statements = value
         # Resolve all references in statement
-        ref_resolver = ReferenceResolver.from_resolver(self)
+        ref_resolver = ReferenceResolver(False)
         inc_contents = None
         for statement in statements:
             statement = ref_resolver.resolve(statement, config)
@@ -85,14 +74,16 @@ class IncludeResolver(Resolver):
             inc_file = match.group(1)
             # Resolve references in filenames
             logger.info(f"Resolving Include '{inc_file}'")
-            inc_content = self.__read_included_yaml(inc_file, original_file)
+            inc_content = self.__read_included_yaml(inc_file)
             # Resolve parameters in included file
             if match.group(2):
                 parameters = self.__parse_include_parameters(match.group(2))
                 inc_content = ref_resolver.resolve(inc_content, parameters)
             # Add include content to current content
-            inc_resolver = IncludeResolver(inc_file, self.fail_on_resolve)
-            inc_content = inc_resolver.__resolve_inc(inc_content, config, original_file)
+            include_dirs = self.include_dirs.copy()
+            include_dirs.append(Path(inc_file).parent)
+            inc_resolver = IncludeResolver(include_dirs, self.fail_on_resolve)
+            inc_content = inc_resolver.__resolve_inc(inc_content, config)
             inc_contents = self.update_inc_content(inc_contents, inc_content)
         return inc_contents
 
@@ -131,13 +122,12 @@ class IncludeResolver(Resolver):
             parameters[key.strip()] = yaml_loader.parse_numeric_value(value.strip())
         return parameters
 
-    def __read_included_yaml(self, file_path: str, original_file: Path = ""):
-        # First try path to root .yml file
-        # Second try relative to cwd
-        # Third try relative to including file
-        abs_path = self.root_dir / file_path
-        if not abs_path.is_file():
-            abs_path = Path(os.getcwd()) / file_path
-            if not abs_path.is_file() and original_file:
-                abs_path = original_file.parent / file_path
-        return yaml_loader.load(str(abs_path))
+    def __read_included_yaml(self, file_path: str):
+        # Try path with all include dirs respecting the order
+        file = Path(file_path)
+        if not file.is_absolute():
+            for path in self.include_dirs:
+                file = path / file_path
+                if file.is_file():
+                    return yaml_loader.load(str(file))
+        raise ExtYamlError(f"Include file '{file_path}' not found. Are include directories provided?")

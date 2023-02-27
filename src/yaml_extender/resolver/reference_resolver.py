@@ -45,8 +45,8 @@ class ArithmeticOperation:
 
 class ReferenceResolver(Resolver):
 
-    def __init__(self, root_yaml: str | Path, fail_on_resolve: bool = True):
-        super().__init__(root_yaml, fail_on_resolve)
+    def __init__(self, fail_on_resolve: bool = True):
+        super().__init__(fail_on_resolve)
 
     def _Resolver__resolve(self, cur_value: Any, config: dict):
         """Resolves all references in a given value using the provided content dict"""

@@ -17,9 +17,9 @@ MAXIMUM_REFERENCE_DEPTH = 30
 
 class LoopResolver(Resolver):
 
-    def __init__(self, root_yaml: str | Path, fail_on_resolve: bool = True):
-        super().__init__(root_yaml, fail_on_resolve)
-        self.ref_resolver = ReferenceResolver(self.root_yaml, False)
+    def __init__(self, fail_on_resolve: bool = True):
+        super().__init__(fail_on_resolve)
+        self.ref_resolver = ReferenceResolver(False)
 
     def _Resolver__resolve(self, cur_value: Any, config: dict):
         """Resolves all references in a given value using the provided content dict"""
