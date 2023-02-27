@@ -32,22 +32,31 @@ class IncludeResolver(Resolver):
                 The content of the original file with all includes resolved.
         """
         if isinstance(cur_value, dict):
-            additional_content = {}
-            for k in cur_value.keys():
-                if k == INCLUDE_KEY:
-                    include_content = self.__resolve_include_statement(cur_value[k], parent_file, config)
-                    # Filter all values that are already defined in current context
-                    if isinstance(include_content, dict):
-                        include_content = {k: v for k, v in include_content.items() if k not in cur_value}
-                        additional_content.update(include_content)
-                    else:
-                        return include_content
-                else:
-                    cur_value[k] = self.__resolve_inc(cur_value[k], config, parent_file)
-            # Update current content with the included
-            if additional_content:
+            if INCLUDE_KEY in cur_value:
+                include_content = self.__resolve_include_statement(cur_value[INCLUDE_KEY], parent_file, config)
+                self.update_content_with_include_content(cur_value, include_content)
                 del cur_value[INCLUDE_KEY]
-                cur_value.update(additional_content)
+            else:
+                for k, v in cur_value.items():
+                    cur_value[k] = self.__resolve_inc(cur_value[k], config, parent_file)
+
+            # additional_content = {}
+            # for k in cur_value.keys():
+            #     if k == INCLUDE_KEY:
+            #         include_content = self.__resolve_include_statement(cur_value[k], parent_file, config)
+            #         # Filter all values that are already defined in current context
+            #         if isinstance(include_content, dict):
+            #             include_content = self.remove_existing_keys_from_include_content(include_content, cur_value)
+            #             additional_content.update(include_content)
+            #         else:
+            #             # Return includes with primitive content
+            #             return include_content
+            #     else:
+            #         cur_value[k] = self.__resolve_inc(cur_value[k], config, parent_file)
+            # # Update current content with the included
+            # if additional_content:
+            #     del cur_value[INCLUDE_KEY]
+            #     cur_value.update(additional_content)
         elif isinstance(cur_value, list):
             new_content = []
             for i, x in enumerate(cur_value):
@@ -86,6 +95,14 @@ class IncludeResolver(Resolver):
             inc_content = inc_resolver.__resolve_inc(inc_content, config, original_file)
             inc_contents = self.update_inc_content(inc_contents, inc_content)
         return inc_contents
+
+    def update_content_with_include_content(self, existing_content, include_content):
+        for k, v in include_content.items():
+            if k in existing_content:
+                if isinstance(v, dict):
+                    self.update_content_with_include_content(existing_content[k], v)
+            else:
+                existing_content[k] = v
 
     def update_inc_content(self, content, include):
         """Adds include content to existing content based on current datatype"""

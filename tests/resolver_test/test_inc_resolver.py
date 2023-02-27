@@ -4,7 +4,7 @@ import yaml
 from src.yaml_extender.resolver.include_resolver import IncludeResolver
 
 
-@mock.patch('src.yaml_extender.yaml_loader.load')
+@mock.patch('yaml_extender.yaml_loader.load')
 def test_basic_include(load_func):
     content = yaml.safe_load("""
 dict_1:
@@ -25,7 +25,7 @@ dict_1:
     assert result == expected
 
 
-@mock.patch('src.yaml_extender.yaml_loader.load')
+@mock.patch('yaml_extender.yaml_loader.load')
 def test_multiple_include(load_func):
     content = yaml.safe_load("""
 dict_1:
@@ -52,7 +52,7 @@ dict_1:
     assert result == expected
 
 
-@mock.patch('src.yaml_extender.yaml_loader.load')
+@mock.patch('yaml_extender.yaml_loader.load')
 def test_recursive_include(load_func):
     content = yaml.safe_load("""
 dict_1:
@@ -75,7 +75,7 @@ dict_1:
     assert result == expected
 
 
-@mock.patch('src.yaml_extender.yaml_loader.load')
+@mock.patch('yaml_extender.yaml_loader.load')
 def test_parameter_include(load_func):
     content = yaml.safe_load("""
 dict_1:
@@ -94,3 +94,46 @@ dict_1:
 
     assert load_func.call_args[0][0] == "inc.yaml"
     assert result == expected
+
+
+@mock.patch('yaml_extender.yaml_loader.load')
+def test_parameter_include_overwrite(load_func):
+    content = yaml.safe_load("""
+    value_1: 123
+    value_2: abc
+    xyml.include: inc.yaml
+    """)
+    expected = yaml.safe_load("""
+    value_1: 123
+    value_2: abc
+    value_3: 123
+    """)
+    load_func.return_value = {"value_2": "xyz", "value_3": 123}
+    inc_resolver = IncludeResolver("root.yaml")
+    result = inc_resolver.resolve(content)
+
+    assert load_func.call_args[0][0] == "inc.yaml"
+    assert result == expected
+
+
+@mock.patch('yaml_extender.yaml_loader.load')
+def test_parameter_include_partly_overwrite(load_func):
+    content = yaml.safe_load("""
+    dict_1:
+      subvalue_1: abc
+      subvalue_2: xyz
+    xyml.include: inc.yaml
+    """)
+    expected = yaml.safe_load("""
+    dict_1:
+      subvalue_1: abc
+      subvalue_2: xyz
+      subvalue_3: 123
+    """)
+    load_func.return_value = {"dict_1": {"subvalue_2": "abc", "subvalue_3": 123}}
+    inc_resolver = IncludeResolver("root.yaml")
+    result = inc_resolver.resolve(content)
+
+    assert load_func.call_args[0][0] == "inc.yaml"
+    assert result == expected
+
