@@ -7,11 +7,10 @@ from typing import Any, List
 
 from yaml_extender.resolver.reference_resolver import ReferenceResolver
 from yaml_extender.resolver.resolver import Resolver
-from yaml_extender.xyml_exception import ExtYamlSyntaxError
+from yaml_extender.xyml_exception import ExtYamlError, ExtYamlSyntaxError
 import yaml_extender.logger as logger
 import yaml_extender.yaml_loader as yaml_loader
 
-from src.yaml_extender.xyml_exception import ExtYamlError
 
 INCLUDE_REGEX = r'([^<]+)\s*(?:<<(.*)>>)?'
 INCLUDE_KEY = "xyml.include"
