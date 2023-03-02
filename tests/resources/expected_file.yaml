@@ -8,6 +8,7 @@ tests:
 - test_references
 - test_includes
 - test_loops
+user_content: simon
 todos:
 - cmd: generate.sh loops simon
   executionOrder: 1

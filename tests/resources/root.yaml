@@ -8,6 +8,7 @@ tests:
   xyml.for: feature:features
   xyml.content:
   - test_{{ feature }}
+user_content: "{{xyml.param.user}}"
 
 todos:
   xyml.include:

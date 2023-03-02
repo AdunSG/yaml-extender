@@ -40,8 +40,14 @@ class IncludeResolver(Resolver):
         if isinstance(cur_value, dict):
             if INCLUDE_KEY in cur_value:
                 include_content = self.__resolve_include_statement(cur_value[INCLUDE_KEY], config)
-                self.update_content_with_include_content(cur_value, include_content)
-                del cur_value[INCLUDE_KEY]
+                if isinstance(include_content, dict):
+                    self.update_content_with_include_content(cur_value, include_content)
+                    del cur_value[INCLUDE_KEY]
+                else:
+                    if len(cur_value) > 1:
+                        raise ExtYamlSyntaxError(f"Unable to resolve {cur_value}."
+                                                 f"Included file does not return a dictionary.")
+                    cur_value = include_content
             else:
                 for k, v in cur_value.items():
                     cur_value[k] = self.__resolve_inc(cur_value[k], config)

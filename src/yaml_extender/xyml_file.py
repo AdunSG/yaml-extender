@@ -25,8 +25,8 @@ class XYmlFile:
         self.filepath = filepath.absolute()
         self.root_dir = filepath.parent
         # Use root_dir and cwd as default include paths.
-        include_dirs.append(self.root_dir)
-        include_dirs.append(Path.cwd())
+        self.include_dirs.append(self.root_dir)
+        self.include_dirs.append(Path.cwd())
         self.content = yaml_loader.load(str(self.filepath))
         self.content = self.resolve()
 
@@ -34,7 +34,7 @@ class XYmlFile:
         return yaml.dump(self.content)
 
     def resolve(self):
-        inc_resolver = IncludeResolver([self.root_dir], False)
+        inc_resolver = IncludeResolver(self.include_dirs, False)
         processed_content = inc_resolver.resolve(self.content)
         loop_resolver = LoopResolver(False)
         processed_content = loop_resolver.resolve(processed_content)

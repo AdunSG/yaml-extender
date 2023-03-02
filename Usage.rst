@@ -5,11 +5,12 @@ From CLI
 
 The yaml_extender can be used from command line using::
 
-    python -m yaml_extender <input> <output> [parameters]
+    python -m yaml_extender <input> <output> [-i <path>] [parameters]
 
-input: Path to the input file containing extended yaml syntax.
-output: Path to the output file.
-parameters: Additional parameters, which can be referenced in the extended yaml syntax. See Parameters :ref:`parameters`.
+- input: Path to the input file containing extended yaml syntax.
+- output: Path to the output file.
+- path: Multiple -i parameters can be provided. This will add additional include directories, in which yaml-extender will search for include files.
+- parameters: Additional parameters, which can be referenced in the extended yaml syntax. See Parameters :ref:`parameters`.
 
 **Example**::
 
