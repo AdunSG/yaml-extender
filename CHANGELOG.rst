@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 0.0.5, 2023-03-02
+-----------------------
+
+- Fixed issues with passing include directories over CLI.
+
 Version 0.0.4, 2023-02-28
 -----------------------
 
