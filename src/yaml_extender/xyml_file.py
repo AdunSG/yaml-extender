@@ -47,8 +47,8 @@ class XYmlFile:
         processed_content = ref_resolver.resolve(processed_content, config)
         return processed_content
 
-    def save(self, path: str):
+    def save(self, path: str, sort_keys=False):
         with open(path, 'w') as file:
-            yaml.dump(self.content, file)
+            yaml.dump(self.content, file, sort_keys=sort_keys)
 
 

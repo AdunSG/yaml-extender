@@ -16,6 +16,7 @@ def main():
     parser.add_argument("input", help="Input yaml file to be parsed", type=Path)
     parser.add_argument("output", help="Output file to save to", type=Path)
     parser.add_argument("-i", "--include", help="Include paths", type=Path, action="append")
+    parser.add_argument("--sort-keys", help="When set output file will have keys sorted", action="store_true")
     args, unknown_args = parser.parse_known_args()
 
     if not args.input.is_file:
@@ -25,7 +26,7 @@ def main():
     xyml_file = XYmlFile(args.input, additional_args, args.include)
     output_dir: Path = args.output.parent
     output_dir.mkdir(exist_ok=True, parents=True)
-    xyml_file.save(args.output)
+    xyml_file.save(args.output, args.sort_keys)
 
 
 def parse_unknown_args(args: List) -> Dict:
