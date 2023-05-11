@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 0.0.6, 2023-05-11
+-----------------------
+
+- Added option to enable / disable sorting of yaml keys.
+
 Version 0.0.5, 2023-03-02
 -----------------------
 
