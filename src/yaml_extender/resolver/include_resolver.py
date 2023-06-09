@@ -48,9 +48,8 @@ class IncludeResolver(Resolver):
                         raise ExtYamlSyntaxError(f"Unable to resolve {cur_value}."
                                                  f"Included file does not return a dictionary.")
                     cur_value = include_content
-            else:
-                for k, v in cur_value.items():
-                    cur_value[k] = self.__resolve_inc(cur_value[k], config)
+            for k, v in cur_value.items():
+                cur_value[k] = self.__resolve_inc(cur_value[k], config)
         elif isinstance(cur_value, list):
             new_content = []
             for i, x in enumerate(cur_value):

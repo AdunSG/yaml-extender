@@ -33,6 +33,7 @@ dict_1:
 def test_multiple_include(is_file_mock, load_func):
     is_file_mock.return_value = True
     content = yaml.safe_load("""
+xyml.include: properties.yaml
 dict_1:
   subvalue_1: abc
   xyml.include:
@@ -40,6 +41,7 @@ dict_1:
   - inc2.yaml
 """)
     expected = yaml.safe_load("""
+    glob_val: const
     dict_1:
       subvalue_1: abc
       subvalue_2: xyz
@@ -47,14 +49,16 @@ dict_1:
         subvalue_4: 123
         subvalue_5: 456
     """)
-    load_func.side_effect = [{"subvalue_2": "xyz"},
+    load_func.side_effect = [{"glob_val": "const"},
+                             {"subvalue_2": "xyz"},
                              {"subvalue_3": {"subvalue_4": 123, "subvalue_5": 456}}]
     inc_resolver = IncludeResolver()
     result = inc_resolver.resolve(content)
 
-    assert load_func.call_args_list[0][0][0] == str(Path.cwd() / "inc1.yaml")
-    assert load_func.call_args_list[1][0][0] == str(Path.cwd() / "inc2.yaml")
     assert result == expected
+    assert load_func.call_args_list[0][0][0] == str(Path.cwd() / "properties.yaml")
+    assert load_func.call_args_list[1][0][0] == str(Path.cwd() / "inc1.yaml")
+    assert load_func.call_args_list[2][0][0] == str(Path.cwd() / "inc2.yaml")
 
 
 @mock.patch('yaml_extender.yaml_loader.load')
