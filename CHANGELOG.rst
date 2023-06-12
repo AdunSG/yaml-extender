@@ -1,6 +1,19 @@
 Changelog
 =========
 
+Version 0.0.7, 2023-06-12
+-----------------------
+
+- Changed: occurences of list refs in string will now resolve as whitespace separated string.
+- Changed: resolving lists in lists will now extend the current list.
+
+- Bugfix: Include Resolver will now resolve subsequent values in dicts.
+
+Version 0.0.6, 2023-05-11
+-----------------------
+
+- Added option to enable / disable sorting of yaml keys.
+
 Version 0.0.6, 2023-05-11
 -----------------------
 
