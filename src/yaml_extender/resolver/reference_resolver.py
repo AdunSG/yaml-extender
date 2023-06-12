@@ -10,6 +10,7 @@ from yaml_extender.xyml_exception import RecursiveReferenceError, ReferenceNotFo
 
 REFERENCE_REGEX = r'\{\{(.+?)(?::(.*?))?\}\}'
 ARRAY_REGEX = r'(.*)?\[(\d*)\]'
+LIST_FLATTEN_CHARACTER = " "
 
 MAXIMUM_REFERENCE_DEPTH = 30
 
@@ -130,6 +131,8 @@ class ReferenceResolver(Resolver):
                     return ref_val
                 else:
                     # Replace the reference string with the value
+                    if isinstance(ref_val, list):
+                        ref_val = LIST_FLATTEN_CHARACTER.join(ref_val)
                     new_value = new_value.replace(ref_match.group(0), str(ref_val))
 
         if new_value == value:

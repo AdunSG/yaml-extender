@@ -337,3 +337,28 @@ def test_raw_value_ref(loader_mock):
       - y
     """)
     assert file.content == expected
+
+
+@patch('yaml_extender.yaml_loader.load')
+def test_flat_list_ref(loader_mock):
+    # Test Lists
+    content = yaml.safe_load("""
+    my_list:
+    - a
+    - b
+    advanced_list:
+    - additional elements {{my_list}}
+    - c
+    """)
+    loader_mock.return_value = content
+    file = XYmlFile(Path.cwd())
+    expected = yaml.safe_load("""
+    my_list:
+    - a
+    - b
+    advanced_list:
+    - additional elements a b
+    - c
+    """)
+    assert file.content == expected
+
