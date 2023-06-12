@@ -55,8 +55,15 @@ class ReferenceResolver(Resolver):
             for k in cur_value.keys():
                 cur_value[k] = self._Resolver__resolve(cur_value[k], config)
         elif isinstance(cur_value, list):
+            new_list = []
             for i, x in enumerate(cur_value):
-                cur_value[i] = self._Resolver__resolve(x, config)
+                resolved_value = self._Resolver__resolve(x, config)
+                if isinstance(resolved_value, list):
+                    # If the returned value is also a list, extend the current list with it
+                    new_list.extend(resolved_value)
+                else:
+                    new_list.append(self._Resolver__resolve(x, config))
+            new_value = new_list
         else:
             new_value = self.resolve_reference(cur_value, config)
         return new_value

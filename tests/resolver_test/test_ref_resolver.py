@@ -233,7 +233,7 @@ value_2: 2
     assert result == expected
 
 
-@patch('src.yaml_extender.yaml_loader.load')
+@patch('yaml_extender.yaml_loader.load')
 def test_env_ref(loader_mock):
     os.environ["TEST_VAL"] = "123"
     content = yaml.safe_load("""
@@ -258,7 +258,7 @@ value_2: "123"
     assert file.content == expected
 
 
-@patch('src.yaml_extender.yaml_loader.load')
+@patch('yaml_extender.yaml_loader.load')
 def test_param_ref(loader_mock):
     content = yaml.safe_load("""
     value_1: 1
@@ -283,4 +283,57 @@ def test_param_ref(loader_mock):
     assert file.content == expected
 
 
+@patch('yaml_extender.yaml_loader.load')
+def test_raw_value_ref(loader_mock):
+    # Test Lists
+    content = yaml.safe_load("""
+    my_list:
+    - a
+    - b
+    advanced_list:
+    - "{{ my_list }}"
+    - c
+    """)
+    loader_mock.return_value = content
+    file = XYmlFile(Path.cwd())
+    expected = yaml.safe_load("""
+    my_list:
+    - a
+    - b
+    advanced_list:
+    - a
+    - b
+    - c
+    """)
+    assert file.content == expected
 
+    # Test dicts
+    content = yaml.safe_load("""
+    my_dict:
+      value_1: a
+      value_2: b
+    my_list:
+    - x
+    - y
+    advanced_dict:
+      my_dict: "{{ my_dict }}"
+      my_list: "{{ my_list }}"
+    """)
+    loader_mock.return_value = content
+    file = XYmlFile(Path.cwd())
+    expected = yaml.safe_load("""
+    my_dict:
+      value_1: a
+      value_2: b
+    my_list:
+    - x
+    - y
+    advanced_dict:
+      my_dict:
+        value_1: a
+        value_2: b
+      my_list:
+      - x
+      - y
+    """)
+    assert file.content == expected
