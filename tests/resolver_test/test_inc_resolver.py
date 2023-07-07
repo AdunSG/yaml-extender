@@ -170,3 +170,23 @@ dict_1:
     inc_resolver = IncludeResolver([additional_inc_dir, additional_fake_inc_dir])
     _ = inc_resolver.resolve(content)
     assert load_func.call_args[0][0] == str(additional_inc_dir / "inc.yaml")
+
+
+@mock.patch('yaml_extender.yaml_loader.load')
+@mock.patch('pathlib.Path.is_file')
+def test_array_include(is_file_mock, load_func):
+    is_file_mock.return_value = True
+    content = yaml.safe_load("""
+array_1:
+  xyml.include: inc.yaml
+""")
+    load_func.return_value = [{"subvalue_2": "xyz", "subvalue_3": 123}]
+    expected = yaml.safe_load("""
+    array_1:
+    - subvalue_2: xyz
+      subvalue_3: 123
+    """)
+    inc_resolver = IncludeResolver()
+    result = inc_resolver.resolve(content)
+    assert load_func.call_args[0][0] == str(Path.cwd() / "inc.yaml")
+    assert result == expected

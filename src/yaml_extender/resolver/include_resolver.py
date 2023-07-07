@@ -38,18 +38,16 @@ class IncludeResolver(Resolver):
                 The content of the original file with all includes resolved.
         """
         if isinstance(cur_value, dict):
-            if INCLUDE_KEY in cur_value:
-                include_content = self.__resolve_include_statement(cur_value[INCLUDE_KEY], config)
-                if isinstance(include_content, dict):
-                    self.update_content_with_include_content(cur_value, include_content)
-                    del cur_value[INCLUDE_KEY]
+            for k, v in list(cur_value.items()):
+                if k != INCLUDE_KEY:
+                    cur_value[k] = self.__resolve_inc(cur_value[k], config)
                 else:
-                    if len(cur_value) > 1:
-                        raise ExtYamlSyntaxError(f"Unable to resolve {cur_value}."
-                                                 f"Included file does not return a dictionary.")
-                    cur_value = include_content
-            for k, v in cur_value.items():
-                cur_value[k] = self.__resolve_inc(cur_value[k], config)
+                    include_content = self.__resolve_include_statement(cur_value[INCLUDE_KEY], config)
+                    if isinstance(include_content, dict):
+                        self.update_content_with_include_content(cur_value, include_content)
+                        del cur_value[INCLUDE_KEY]
+                    else:
+                        return include_content
         elif isinstance(cur_value, list):
             new_content = []
             for i, x in enumerate(cur_value):
