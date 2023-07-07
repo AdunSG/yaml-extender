@@ -190,3 +190,27 @@ array_1:
     result = inc_resolver.resolve(content)
     assert load_func.call_args[0][0] == str(Path.cwd() / "inc.yaml")
     assert result == expected
+
+
+@mock.patch('yaml_extender.yaml_loader.load')
+@mock.patch('pathlib.Path.is_file')
+def test_multiple_array_include(is_file_mock, load_func):
+    is_file_mock.return_value = True
+    content = yaml.safe_load("""
+array_1:
+- xyml.include: inc1.yaml
+- xyml.include: inc2.yaml
+""")
+    load_func.return_value = [{"subvalue_2": "xyz", "subvalue_3": 123}]
+    expected = yaml.safe_load("""
+    array_1:
+    - subvalue_2: xyz
+      subvalue_3: 123
+    - subvalue_2: xyz
+      subvalue_3: 123
+    """)
+    inc_resolver = IncludeResolver()
+    result = inc_resolver.resolve(content)
+    assert load_func.call_args_list[0][0][0] == str(Path.cwd() / "inc1.yaml")
+    assert load_func.call_args_list[1][0][0] == str(Path.cwd() / "inc2.yaml")
+    assert result == expected
