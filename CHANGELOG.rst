@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Version 0.0.8, 2023-07-10
+-----------------------
+
+- Bugfix: Including files, which represent a list value is now possible.
+            + Added additional tests for that
+
 Version 0.0.7, 2023-06-12
 -----------------------
 
