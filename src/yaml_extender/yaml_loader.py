@@ -1,7 +1,7 @@
 from pathlib import Path
 import yaml
 
-VALID_YAML_SUFFIXES = [".yaml", ".yml"]
+VALID_YAML_SUFFIXES = [".yaml", ".yml", ".xyml"]
 
 
 def load(path: str) -> dict:
