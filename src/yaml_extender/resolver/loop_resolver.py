@@ -41,31 +41,39 @@ class LoopResolver(Resolver):
                     new_value[i] = resolved_loop_content
         return new_value
 
-    def resolve_loop(self, loop_desc, loop_content, config):
+    def resolve_loop(self, loop_desc, loop_config, config):
         loop_values = []
-        # Retrieve value and iterator
-        match = re.search(LOOP_REGEX, loop_desc)
-        if not match or len(match.groups()) < 2:
-            raise ExtYamlSyntaxError(f"No valid loop statement: {loop_desc}")
-        iterator = match[1]
-        iteration_value = config[match[2]]
-        if not isinstance(iteration_value, list):
-            raise ExtYamlSyntaxError(f"No valid loop statement: {loop_desc}")
-
         # Remove loop statement from dict
-        del loop_content[LOOP_KEY]
-        if LOOP_CONTENT_KEY in loop_content:
-            if len(loop_content) > 1:
-                raise ExtYamlSyntaxError(f"Flat Loop content does not allow other mapping values: {loop_desc}")
-            loop_content = loop_content[LOOP_CONTENT_KEY]
-            for item in iteration_value:
-                target_value = copy.deepcopy(loop_content)
-                target_value = self.ref_resolver.resolve(target_value, {iterator: item})
-                loop_values.extend(target_value)
+        del loop_config[LOOP_KEY]
+        # Set initial value for resolution
+        if LOOP_CONTENT_KEY in loop_config:
+            loop_values = [loop_config[LOOP_CONTENT_KEY]]
         else:
-            for item in iteration_value:
-                target_value = copy.deepcopy(loop_content)
-                target_value = self.ref_resolver.resolve(target_value, {iterator: item})
-                loop_values.append(target_value)
+            loop_values = [loop_config]
+        # Iterate over possible multiloops
+        loops = loop_desc.split(",")
+        for loop in loops:
+            # Retrieve value and iterator
+            match = re.search(LOOP_REGEX, loop)
+            if not match or len(match.groups()) < 2:
+                raise ExtYamlSyntaxError(f"No valid loop statement: {loop}")
+            iterator = match[1].strip()
+            iteration_value = config[match[2].strip()]
+            if not isinstance(iteration_value, list):
+                raise ExtYamlSyntaxError(f"No valid loop statement: {loop}")
+
+            # Replace the content with filled content
+            loop_values = self.get_loop_content(loop_values, iteration_value, iterator)
         return loop_values
 
+    def get_loop_content(self, loop_configs: list[dict], iteration_value: list, iterator: str):
+        loop_values = []
+        for loop_config in loop_configs:
+            for item in iteration_value:
+                target_value = copy.deepcopy(loop_config)
+                target_value = self.ref_resolver.resolve(target_value, {iterator: item})
+                if isinstance(target_value, list):
+                    loop_values.extend(target_value)
+                else:
+                    loop_values.append(target_value)
+        return loop_values

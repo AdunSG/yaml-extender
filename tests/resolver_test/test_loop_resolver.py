@@ -115,3 +115,35 @@ commands:
     loop_resolver = LoopResolver("root.yaml")
     result = loop_resolver.resolve(content)
     assert result == expected
+
+
+def test_multiloop():
+    content = yaml.safe_load("""
+array_1:
+- abc
+- xyz
+array_2:
+- 123
+- 456
+commands:
+  xyml.for: i:array_1, j:array_2
+  xyml.content:
+    cmd: sh {{i}} {{j}}
+""")
+    expected = yaml.safe_load("""
+array_1:
+- abc
+- xyz
+array_2:
+- 123
+- 456
+commands:
+- cmd: sh abc 123
+- cmd: sh abc 456
+- cmd: sh xyz 123
+- cmd: sh xyz 456
+""")
+    loop_resolver = LoopResolver("root.yaml")
+    result = loop_resolver.resolve(content)
+    assert result == expected
+

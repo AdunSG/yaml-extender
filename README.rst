@@ -198,3 +198,35 @@ Will result in::
       - cmd: sh xyz
       - cmd: echo xyz
 
+
+Loops for Permutation
+~~~~~~~~~~~~~~~~~~~~~
+
+Loops can also be used to create permutations. To simplify that a loop statement can take a custom amount of iterators.
+
+**Example**::
+
+    array_1:
+    - abc
+    - xyz
+    array_2:
+    - 123
+    - 456
+    commands:
+      xyml.for: i:array_1, j:array_2
+      xyml.content:
+      - cmd: sh {{ i }} {{ j }}
+
+Will result in::
+
+    array_1:
+    - abc
+    - xyz
+    array_2:
+    - 123
+    - 456
+    commands:
+      - cmd: sh abc 123
+      - cmd: sh abc 456
+      - cmd: sh xyz 123
+      - cmd: sh xyz 456
