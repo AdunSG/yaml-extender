@@ -27,6 +27,7 @@ def main():
     output_dir: Path = args.output.parent
     output_dir.mkdir(exist_ok=True, parents=True)
     xyml_file.save(args.output, args.sort_keys)
+    return 0
 
 
 def parse_unknown_args(args: List) -> Dict:
