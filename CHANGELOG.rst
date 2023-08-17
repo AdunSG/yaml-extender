@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 0.1.0, 2023-08-17
+-----------------------
+
+- Bugfix: Boolean values are not parsed correctly when set in include parameters.
+- Changed: Numeric values for arithmetic operations are now parsed strictly.
+- Changed: Improved README documentation.
+- Added: For loops will now accept multiple iterator statements and create permutations for it.
+
 Version 0.0.8, 2023-07-10
 -----------------------
 
