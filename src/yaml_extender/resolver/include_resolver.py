@@ -121,7 +121,7 @@ class IncludeResolver(Resolver):
             key, value = param.split("=")
             if not key or not value:
                 raise ExtYamlSyntaxError(f"Invalid parameter string {param_string}")
-            parameters[key.strip()] = yaml_loader.parse_numeric_value(value.strip())
+            parameters[key.strip()] = yaml_loader.parse_any_value(value.strip())
         return parameters
 
     def __read_included_yaml(self, file_path: str):

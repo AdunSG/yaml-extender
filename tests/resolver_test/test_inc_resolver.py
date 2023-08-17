@@ -214,3 +214,24 @@ array_1:
     assert load_func.call_args_list[0][0][0] == str(Path.cwd() / "inc1.yaml")
     assert load_func.call_args_list[1][0][0] == str(Path.cwd() / "inc2.yaml")
     assert result == expected
+
+
+@mock.patch('yaml_extender.yaml_loader.load')
+@mock.patch('pathlib.Path.is_file')
+def test_bool_value(is_file_mock, load_func):
+    is_file_mock.return_value = True
+    content = yaml.safe_load("""
+value_1: abc
+param_value: false
+xyml.include: inc.yaml<<param_value=true>>
+""")
+    load_func.return_value = {"subvalue_2": "{{param_value}}", "subvalue_3": 123}
+    expected = yaml.safe_load("""
+    value_1: abc
+    param_value: false
+    subvalue_2: true
+    subvalue_3: 123
+    """)
+    inc_resolver = IncludeResolver()
+    result = inc_resolver.resolve(content)
+    assert result == expected

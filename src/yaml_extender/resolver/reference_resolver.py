@@ -80,7 +80,7 @@ class ReferenceResolver(Resolver):
             ref = ref_match.group(1).strip()
             default_value = ref_match.group(2)
             if default_value:
-                default_value = number_parse(default_value.strip())
+                default_value = yaml_loader.parse_any_value(default_value.strip())
             failed = ""
             current_config = config
             # Resolve arithmetic operation
@@ -145,12 +145,3 @@ class ReferenceResolver(Resolver):
         new_value = self.resolve_reference(new_value, config, depth + 1)
         return new_value
 
-
-def number_parse(s: str):
-    try:
-        return int(s)
-    except ValueError:
-        try:
-            return float(s)
-        except ValueError:
-            return s

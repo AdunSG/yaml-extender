@@ -29,4 +29,22 @@ def parse_numeric_value(value: str):
         try:
             return float(value)
         except ValueError:
+            raise ValueError(f"{value} is not a numeric value.")
+
+
+def parse_any_value(value: str):
+    try:
+        return parse_numeric_value(value)
+    except ValueError:
+        try:
+            return parse_bool_value(value)
+        except ValueError:
             return value
+
+
+def parse_bool_value(value: str):
+    if value == "true":
+        return True
+    if value == "false":
+        return False
+    raise ValueError(f"{value} is not a boolean value.")
