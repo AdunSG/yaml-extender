@@ -109,13 +109,13 @@ root.yaml::
     dict_1:
       subvalue_1: abc
       xyml.include:
-      - file1.yaml
+      - file1.yaml<<ref_1=456>>
       - file2.yaml
 
 file1.yaml::
 
     subvalue_2: 123
-    subvalue_3: 456
+    subvalue_3: {{ref_1}}
 
 file2.yaml::
 
