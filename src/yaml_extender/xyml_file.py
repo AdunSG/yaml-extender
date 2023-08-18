@@ -7,6 +7,7 @@ from pathlib import Path
 
 from yaml_extender import yaml_loader
 from yaml_extender.resolver.include_resolver import IncludeResolver
+from yaml_extender.resolver.inline_loop_resolver import InlineLoopResolver
 from yaml_extender.resolver.loop_resolver import LoopResolver
 from yaml_extender.resolver.reference_resolver import ReferenceResolver
 
@@ -38,6 +39,8 @@ class XYmlFile:
         processed_content = inc_resolver.resolve(self.content)
         loop_resolver = LoopResolver(False)
         processed_content = loop_resolver.resolve(processed_content)
+        inline_loop_resolver = InlineLoopResolver(False)
+        processed_content = inline_loop_resolver.resolve(processed_content)
         # Extend config for resolution by ENV and PARAM statements
         config = processed_content.copy()
         config["xyml"] = {}

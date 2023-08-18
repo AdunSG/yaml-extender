@@ -9,6 +9,7 @@ tests:
 - test_includes
 - test_loops
 user_content: simon
+info: "Content is: Feature references, Feature includes, Feature loops,"
 todos:
 - cmd: generate.sh loops simon
   executionOrder: 1

@@ -10,6 +10,8 @@ tests:
   - test_{{ feature }}
 user_content: "{{xyml.param.user}}"
 
+info: "Content is:{{xyml.for:f:features: Feature {{f}},}}"
+
 todos:
   xyml.include:
   - exec.yaml<<executionOrder=1>>

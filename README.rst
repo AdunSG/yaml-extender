@@ -230,3 +230,23 @@ Will result in::
       - cmd: sh abc 456
       - cmd: sh xyz 123
       - cmd: sh xyz 456
+
+Inline Loops
+~~~~~~~~~~~~~~~~~~~~~
+
+You can also use loops to improve the string values in your configuration.
+This can be used to simplify reoccurring values like parameters.
+
+**Example**::
+
+    array_1:
+    - abc
+    - xyz
+    command: Input parameters: {{xyml.for:param:array_1:-i {{param}}}}
+
+Will result in::
+
+    array_1:
+    - abc
+    - xyz
+    command: Input parameters: -i abc -i xyz
