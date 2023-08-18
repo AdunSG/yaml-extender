@@ -6,7 +6,6 @@ from unittest.mock import patch
 
 from src.yaml_extender.resolver.reference_resolver import ReferenceResolver
 from src.yaml_extender.xyml_file import XYmlFile
-from src.yaml_extender import yaml_loader
 
 
 def test_basic_ref():
@@ -22,7 +21,7 @@ dict_1:
   subvalue_1: abc
   subvalue_2: 123
 """)
-    ref_resolver = ReferenceResolver("root.yaml")
+    ref_resolver = ReferenceResolver()
     result = ref_resolver.resolve(content)
 
     assert result == expected
@@ -39,7 +38,7 @@ ref_val_1: 123
 ref_val_2: abc_123_xyz
 ref_val_3: abc_123
 """)
-    ref_resolver = ReferenceResolver("root.yaml")
+    ref_resolver = ReferenceResolver()
     result = ref_resolver.resolve(content)
 
     assert result == expected
@@ -58,7 +57,7 @@ dict_1:
   subvalue_1: abc
   subvalue_2: 123
 """)
-    ref_resolver = ReferenceResolver("root.yaml")
+    ref_resolver = ReferenceResolver()
     result = ref_resolver.resolve(content)
 
     assert result == expected
@@ -79,7 +78,7 @@ array_1:
 - xyz
 - 123
 """)
-    ref_resolver = ReferenceResolver("root.yaml")
+    ref_resolver = ReferenceResolver()
     result = ref_resolver.resolve(content)
 
     assert result == expected
@@ -106,7 +105,7 @@ dict_1:
   - path: second/path
     config: second.cfg
 """)
-    ref_resolver = ReferenceResolver("root.yaml")
+    ref_resolver = ReferenceResolver()
     result = ref_resolver.resolve(content)
 
     assert result == expected
@@ -125,7 +124,7 @@ dict_1:
   subvalue_1: abc
   subvalue_2: default
 """)
-    ref_resolver = ReferenceResolver("root.yaml")
+    ref_resolver = ReferenceResolver()
     result = ref_resolver.resolve(content)
 
     assert result == expected
@@ -140,7 +139,7 @@ ref_val_2: "{{ not_existing:123 }}"
 ref_val_1: abc
 ref_val_2: 123
 """)
-    ref_resolver = ReferenceResolver("root.yaml")
+    ref_resolver = ReferenceResolver()
     result = ref_resolver.resolve(content)
 
     assert result == expected
@@ -159,7 +158,7 @@ dict_1:
   subvalue_1: abc
   subvalue_2: my_str_
 """)
-    ref_resolver = ReferenceResolver("root.yaml")
+    ref_resolver = ReferenceResolver()
     result = ref_resolver.resolve(content)
 
     assert result == expected
@@ -180,7 +179,7 @@ array_1:
 - xyz
 - 123
 """)
-    ref_resolver = ReferenceResolver("root.yaml")
+    ref_resolver = ReferenceResolver()
     result = ref_resolver.resolve(content)
 
     assert result == expected
@@ -199,7 +198,7 @@ dict_1:
   subvalue_1: abc
   subvalue_2: 123
 """)
-    ref_resolver = ReferenceResolver("root.yaml")
+    ref_resolver = ReferenceResolver()
     result = ref_resolver.resolve(content)
 
     assert result == expected
@@ -214,7 +213,7 @@ value_2: "{{value_1+1}}"
 value_1: 1
 value_2: 2
 """)
-    ref_resolver = ReferenceResolver("root.yaml")
+    ref_resolver = ReferenceResolver()
     result = ref_resolver.resolve(content)
 
     assert result == expected
@@ -227,7 +226,7 @@ value_2: 2
     value_1: 1
     value_2: string_2
     """)
-    ref_resolver = ReferenceResolver("root.yaml")
+    ref_resolver = ReferenceResolver()
     result = ref_resolver.resolve(content)
 
     assert result == expected
