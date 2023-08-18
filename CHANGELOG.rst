@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Version 0.2.0, 2023-08-18
+-----------------------
+
+- Bugfix: Syntax error
+- Added: Inline Loop feature. Strings can now be extended using loops.
+- Changed: accepting absolute filepaths now.
+
 Version 0.1.0, 2023-08-17
 -----------------------
 
