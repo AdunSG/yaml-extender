@@ -20,7 +20,7 @@ class IncludeResolver(Resolver):
 
     def __init__(self, include_dirs: List[Path] | None = None, fail_on_resolve: bool = True):
         if include_dirs:
-            self.include_dirs: List[Path] = include_dirs
+            self.include_dirs: List[Path] = [inc.absolute() for inc in include_dirs]
         else:
             self.include_dirs: List[Path] = []
         if Path.cwd() not in self.include_dirs:
@@ -132,4 +132,6 @@ class IncludeResolver(Resolver):
                 file = path / file_path
                 if file.is_file():
                     return yaml_loader.load(str(file))
+        else:
+            return yaml_loader.load(str(file))
         raise ExtYamlError(f"Include file '{file_path}' not found. Are include directories provided?")

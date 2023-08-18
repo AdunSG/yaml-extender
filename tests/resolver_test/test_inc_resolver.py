@@ -169,7 +169,7 @@ dict_1:
     load_func.return_value = {"subvalue_2": "xyz", "subvalue_3": 123}
     inc_resolver = IncludeResolver([additional_inc_dir, additional_fake_inc_dir])
     _ = inc_resolver.resolve(content)
-    assert load_func.call_args[0][0] == str(additional_inc_dir / "inc.yaml")
+    assert load_func.call_args[0][0] == str(additional_inc_dir.absolute() / "inc.yaml")
 
 
 @mock.patch('yaml_extender.yaml_loader.load')

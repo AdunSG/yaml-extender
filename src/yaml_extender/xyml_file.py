@@ -26,8 +26,10 @@ class XYmlFile:
         self.filepath = filepath.absolute()
         self.root_dir = filepath.parent
         # Use root_dir and cwd as default include paths.
-        self.include_dirs.append(self.root_dir)
-        self.include_dirs.append(Path.cwd())
+        if self.root_dir not in self.include_dirs:
+            self.include_dirs.append(self.root_dir)
+        if Path.cwd() not in self.include_dirs:
+            self.include_dirs.append(Path.cwd())
         self.content = yaml_loader.load(str(self.filepath))
         self.content = self.resolve()
 
