@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 from typing import List, Dict
 
+from yaml_extender import yaml_loader
 from yaml_extender.resolver import reference_resolver
 from yaml_extender.xyml_file import XYmlFile
 from yaml_extender.logger import get_logger
@@ -35,7 +36,7 @@ def parse_unknown_args(args: List) -> Dict:
     ret_val = {}
     # Parse numbers from strings
     for k, v in arg_dict.items():
-        ret_val[k.strip("-")] = reference_resolver.number_parse(v)
+        ret_val[k.strip("-")] = yaml_loader.parse_any_value(v)
     return ret_val
 
 
