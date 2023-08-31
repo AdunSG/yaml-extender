@@ -28,11 +28,13 @@ dict_1:
     assert result == expected
 
 
+@mock.patch('yaml_extender.yaml_loader.load')
+@mock.patch('pathlib.Path.is_file')
 def test_ref_include(is_file_mock, load_func):
     is_file_mock.return_value = True
     content = yaml.safe_load("""
 my_dir: my/dir
-xyml.include: "{{my_dir}}inc.yaml"
+xyml.include: "{{my_dir}}/inc.yaml"
 """)
     expected = yaml.safe_load("""
     my_dir: my/dir

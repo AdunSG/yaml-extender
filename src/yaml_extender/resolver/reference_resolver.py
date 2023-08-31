@@ -99,14 +99,15 @@ class ReferenceResolver(Resolver):
             if ref_val is not None:
                 if operation:
                     ref_val = operation.apply(ref_val)
+                # If resolved value is of type list, flatten it
+                if isinstance(ref_val, list):
+                    ref_val = LIST_FLATTEN_CHARACTER.join(ref_val)
                 if ref_match.group(0) == value:
                     # If the whole string is just a reference return the value without string replacement
                     # in order to preserve float & int types
                     return ref_val
                 else:
-                    # Replace the reference string with the value
-                    if isinstance(ref_val, list):
-                        ref_val = LIST_FLATTEN_CHARACTER.join(ref_val)
+                    # Replace the reference string within the value
                     new_value = new_value.replace(ref_match.group(0), str(ref_val))
 
         if new_value == value:
@@ -149,7 +150,13 @@ class ReferenceResolver(Resolver):
                     raise ReferenceNotFoundError(fullref, ref)
             else:
                 # Resolve list of dicts
-                return [self.resolve_subrefs(fullref, x) for x in current_config]
+                value_list = []
+                for elem in current_config:
+                    try:
+                        value_list.append(self.resolve_subrefs(fullref, elem))
+                    except ReferenceNotFoundError:
+                        pass
+                return value_list
         else:
             if ref in current_config:
                 current_config = current_config[ref]
