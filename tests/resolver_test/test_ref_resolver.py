@@ -361,3 +361,33 @@ def test_flat_list_ref(loader_mock):
     """)
     assert file.content == expected
 
+
+@patch('yaml_extender.yaml_loader.load')
+def test_dict_list_ref(loader_mock):
+    # Test Lists
+    content = yaml.safe_load("""
+    my_dict:
+    - first: a
+      second: b
+    - first: x
+      second: y
+      third: z
+    first: "{{my_dict.first}}"
+    second: "{{my_dict.second}}"
+    third: "{{my_dict.third}}"
+    """)
+    loader_mock.return_value = content
+    file = XYmlFile(Path.cwd())
+    expected = yaml.safe_load("""
+    my_dict:
+    - first: a
+      second: b
+    - first: x
+      second: y
+      third: z
+    first: a x
+    second: b y
+    third: z
+    """)
+    assert file.content == expected
+
