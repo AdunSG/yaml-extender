@@ -65,7 +65,7 @@ dict_1:
 
 def test_array_ref():
     content = yaml.safe_load("""
-ref_val_1: "{{array_1[1]}}"
+ref_val_1: "{{array_1.1}}"
 array_1:
 - abc
 - xyz
@@ -86,7 +86,7 @@ array_1:
 
 def test_array_in_dict_ref():
     content = yaml.safe_load("""
-ref_val_1: "{{dict_1.subvalue_2[1].config}}"
+ref_val_1: "{{dict_1.subvalue_2.1.config}}"
 dict_1:
   subvalue_1: const_val
   subvalue_2:

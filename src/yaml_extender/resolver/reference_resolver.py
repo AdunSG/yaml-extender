@@ -81,60 +81,20 @@ class ReferenceResolver(Resolver):
             default_value = ref_match.group(2)
             if default_value:
                 default_value = yaml_loader.parse_any_value(default_value.strip())
-            failed = ""
-            current_config = config
             # Resolve arithmetic operation
             operation = ArithmeticOperation.parse(ref)
             if operation:
                 ref = operation.reference
             # Resolve reference, including subrefs
-            split_ref = ref.split('.')
-            for i, subref in enumerate(split_ref):
-                # If subref is specifying more than config can resolve, e.g. for include parameter dicts
-                # And the resolved value is another reference, append the subref and resolve later
-                if isinstance(current_config, str):
-                    match = re.match(REFERENCE_REGEX, current_config)
-                    if match:
-                        current_config = match.group(1).strip()
-                        if match.group(2):
-                            current_config += f":{match.group(2)}"
-                        remaining_subrefs = ".".join(split_ref[i:])
-                        current_config = "{{" + current_config + f".{remaining_subrefs}" + "}}"
-                    else:
-                        failed = subref
-                    break
-                # Resolve arrays
-                arr_match = re.match(ARRAY_REGEX, subref)
-                if arr_match:
-                    array_name = arr_match[1]
-                    try:
-                        index = int(arr_match[2])
-                    except TypeError:
-                        raise TypeError(f"Unable to convert index of '{subref}' to integer.")
-                    if array_name in current_config:
-                        if len(current_config[array_name]) > index:
-                            current_config = current_config[array_name][index]
-                        else:
-                            failed = array_name + f"[{index}]"
-                            break
-                    else:
-                        failed = array_name
-                        break
-                else:
-                    if subref in current_config:
-                        current_config = current_config[subref]
-                    else:
-                        failed = subref
-                        break
-            if failed:
+            try:
+                ref_val = self.resolve_subrefs(ref, config)
+            except ReferenceNotFoundError as ref_err:
                 if default_value is not None:
                     ref_val = default_value
                 elif self.fail_on_resolve:
-                    raise ReferenceNotFoundError(ref)
+                    raise ref_err
                 else:
                     ref_val = None
-            else:
-                ref_val = current_config
 
             if ref_val is not None:
                 if operation:
@@ -159,3 +119,41 @@ class ReferenceResolver(Resolver):
         new_value = self.resolve_reference(new_value, config, depth + 1)
         return new_value
 
+    def resolve_subrefs(self, fullref: str, current_config: dict):
+        if not fullref:
+            return current_config
+        if "." in fullref:
+            ref, sub_ref = fullref.split(".", maxsplit=1)
+        else:
+            ref = fullref
+            sub_ref = None
+        # If subref is specifying more than config can resolve, e.g. for include parameter dicts
+        # And the resolved value is another reference, append the subref and resolve later
+        if isinstance(current_config, str):
+            match = re.match(REFERENCE_REGEX, current_config)
+            if match:
+                # If the current config represents another reference and there are more subrefs specified
+                # then extend the reference by the remaining subref
+                current_config = match.group(1).strip()
+                if match.group(2):
+                    current_config += f":{match.group(2)}"
+                return "{{" + current_config + f".{fullref}" + "}}"
+            else:
+                # Fail, because the reference specifies more than can be resolved
+                raise ReferenceNotFoundError(fullref)
+        elif isinstance(current_config, list):
+            if ref.isdigit():
+                if len(current_config) > int(ref):
+                    current_config = current_config[int(ref)]
+                else:
+                    raise ReferenceNotFoundError(fullref, ref)
+            else:
+                # Resolve list of dicts
+                return [self.resolve_subrefs(fullref, x) for x in current_config]
+        else:
+            if ref in current_config:
+                current_config = current_config[ref]
+            else:
+                # Fail, because the reference cannot be found in config
+                raise ReferenceNotFoundError(fullref)
+        return self.resolve_subrefs(sub_ref, current_config)

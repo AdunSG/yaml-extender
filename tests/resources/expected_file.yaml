@@ -3,6 +3,7 @@ features:
 - references
 - includes
 - loops
+first_feature: references
 project: yaml-extender
 tests:
 - test_references
