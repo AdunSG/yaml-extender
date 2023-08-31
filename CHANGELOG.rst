@@ -1,6 +1,17 @@
 Changelog
 =========
 
+Version 0.3.0, 2023-08-31
+-----------------------
+
+- MAJOR Changed: List indices are now accessed by separating the index with a dot instead of using casual array access syntax.
+- Changed: Reworked reference resolver to work in a recursive manner
+- Changed: Update documentation
+
+- Added: Option to resolve list of dicts
+- Bugfix: Accessing elements of dictionaries passed as include parameters now work properly.
+
+
 Version 0.2.0, 2023-08-18
 -----------------------
 
