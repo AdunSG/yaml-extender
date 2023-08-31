@@ -2,17 +2,23 @@
 yaml-extender
 ===============================================================================
 
+.. contents:: :local:
+
+
 Description
 -----------
 Extends the common .yaml syntax to provide more complex configuration options.
 The yaml_extender can be used to resolve the extended yaml syntax as shown in Usage.rst.
 The following options for extended yaml syntax are available.
 
+For more examples on how to use, check the unittests in tests/ directory.
+
 References
 ----------
 
 Yaml values can be referenced by using ``{{ref}}``
-Additionally a default value can be given using a colon symbol within the reference ``{{ref:default}}``
+More specific values from dictionaries can be accessed by separating references with a dot  ``{{ref.subref}}``
+You can access array elements by specifying the index separated by a dot. ``{{ref.1}}``
 
 **Simple Example**::
 
@@ -32,9 +38,9 @@ More complex references can be done using dictionaries as well as lists.
 
 **Complex Example**::
 
-    ref_val_1: "{{dict_1.subvalue_2[0].config}}"
-    ref_val_2: "{{dict_1.subvalue_2[1].path}}"
-    ref_val_3: "{{dict_1.subvalue_2[2].path:default_value}}"
+    ref_val_1: "{{dict_1.subvalue_2.0.config}}"
+    ref_val_2: "{{dict_1.subvalue_2.1.path}}"
+    ref_val_3: "{{dict_1.subvalue_2.2.path:default_value}}"
     dict_1:
       subvalue_1: const_val
       subvalue_2:
@@ -57,7 +63,7 @@ Results in::
         config: second.cfg
 
 
-Also you can use default values by giving a value separated by a colon.
+Additionally a default value can be given using a colon symbol within the reference ``{{ref:default}}``
 Example::
 
     ref_val_1: {{ not_existing:123 }}
@@ -65,6 +71,47 @@ Example::
 results in::
 
     ref_val_1: 123
+
+Lists
+~~~~~
+
+When accessing lists without specifying an index, they will automatically get joined together with a whitespace.
+
+Example::
+
+    array_1:
+    - a
+    - b
+    - c
+    ref_val_1: {{ array_1 }}
+
+results in::
+
+    array_1:
+    - a
+    - b
+    - c
+    ref_val_1: a b c
+
+This can be done similar with list of dictionaries::
+
+    array_1:
+    - first: a
+      second: 1
+    - first: b
+      second: 2
+    firsts: {{array_1.first}}
+    seconds: {{array_1.second}}
+
+Resulting in::
+
+    array_1:
+    - first: a
+      second: 1
+    - first: b
+      second: 2
+    firsts: a b
+    seconds: 1 2
 
 Environment variables
 ~~~~~~~~~~~~~~~~~~~~~
