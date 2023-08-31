@@ -135,6 +135,13 @@ file2.yaml::
       - xyz
 
 
+**Note:**
+It is also allowed to use ref values within include paths like this::
+
+    my_dir: path/to/my/dir
+    xyml.include: "{{my_dir}}/inc.yaml"
+
+
 For loops
 ---------
 

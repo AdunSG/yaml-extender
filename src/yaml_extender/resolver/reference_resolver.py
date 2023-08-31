@@ -88,7 +88,21 @@ class ReferenceResolver(Resolver):
             if operation:
                 ref = operation.reference
             # Resolve reference, including subrefs
-            for subref in ref.split('.'):
+            split_ref = ref.split('.')
+            for i, subref in enumerate(split_ref):
+                # If subref is specifying more than config can resolve, e.g. for include parameter dicts
+                # And the resolved value is another reference, append the subref and resolve later
+                if isinstance(current_config, str):
+                    match = re.match(REFERENCE_REGEX, current_config)
+                    if match:
+                        current_config = match.group(1).strip()
+                        if match.group(2):
+                            current_config += f":{match.group(2)}"
+                        remaining_subrefs = ".".join(split_ref[i:])
+                        current_config = "{{" + current_config + f".{remaining_subrefs}" + "}}"
+                    else:
+                        failed = subref
+                    break
                 # Resolve arrays
                 arr_match = re.match(ARRAY_REGEX, subref)
                 if arr_match:
@@ -116,7 +130,7 @@ class ReferenceResolver(Resolver):
                 if default_value is not None:
                     ref_val = default_value
                 elif self.fail_on_resolve:
-                    raise ReferenceNotFoundError(failed)
+                    raise ReferenceNotFoundError(ref)
                 else:
                     ref_val = None
             else:

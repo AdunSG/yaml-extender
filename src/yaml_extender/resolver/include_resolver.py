@@ -70,20 +70,19 @@ class IncludeResolver(Resolver):
         ref_resolver = ReferenceResolver(False)
         inc_contents = None
         for statement in statements:
-            statement = ref_resolver.resolve(statement, config)
             # Resolve include parameters
             match = re.match(INCLUDE_REGEX, statement)
-            inc_file = match.group(1)
             # Resolve references in filenames
-            logger.info(f"Resolving Include '{inc_file}'")
-            inc_content = self.__read_included_yaml(inc_file)
+            inc_file_path = ref_resolver.resolve(match.group(1), config)
+            logger.info(f"Resolving Include '{inc_file_path}'")
+            inc_content = self.__read_included_yaml(inc_file_path)
             # Resolve parameters in included file
             if match.group(2):
                 parameters = self.__parse_include_parameters(match.group(2))
                 inc_content = ref_resolver.resolve(inc_content, parameters)
             # Add include content to current content
             include_dirs = self.include_dirs.copy()
-            include_dirs.append(Path(inc_file).parent)
+            include_dirs.append(Path(inc_file_path).parent)
             inc_resolver = IncludeResolver(include_dirs, self.fail_on_resolve)
             inc_content = inc_resolver.__resolve_inc(inc_content, config)
             inc_contents = self.update_inc_content(inc_contents, inc_content)
@@ -118,10 +117,10 @@ class IncludeResolver(Resolver):
         """Parses an include parameter string into a dict"""
         parameters = {}
         for param in param_string.split(","):
-            key, value = param.split("=")
+            key, value = [x.strip() for x in param.split("=", maxsplit=1)]
             if not key or not value:
                 raise ExtYamlSyntaxError(f"Invalid parameter string {param_string}")
-            parameters[key.strip()] = yaml_loader.parse_any_value(value.strip())
+            parameters[key] = yaml_loader.parse_any_value(value)
         return parameters
 
     def __read_included_yaml(self, file_path: str):

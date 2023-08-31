@@ -28,6 +28,24 @@ dict_1:
     assert result == expected
 
 
+def test_ref_include(is_file_mock, load_func):
+    is_file_mock.return_value = True
+    content = yaml.safe_load("""
+my_dir: my/dir
+xyml.include: "{{my_dir}}inc.yaml"
+""")
+    expected = yaml.safe_load("""
+    my_dir: my/dir
+    ref_val: xyz
+    """)
+    load_func.return_value = {"ref_val": "xyz"}
+    inc_resolver = IncludeResolver()
+    result = inc_resolver.resolve(content)
+
+    assert load_func.call_args[0][0] == str(Path.cwd() / "my/dir/inc.yaml")
+    assert result == expected
+
+
 @mock.patch('yaml_extender.yaml_loader.load')
 @mock.patch('pathlib.Path.is_file')
 def test_multiple_include(is_file_mock, load_func):
@@ -102,6 +120,51 @@ dict_1:
       subvalue_3: 123
     """)
     load_func.return_value = {"subvalue_2": "{{subvalue_2}}", "subvalue_3": 123}
+    inc_resolver = IncludeResolver()
+    result = inc_resolver.resolve(content)
+
+    assert load_func.call_args[0][0] == str(Path.cwd() / "inc.yaml")
+    assert result == expected
+
+
+@mock.patch('yaml_extender.yaml_loader.load')
+@mock.patch('pathlib.Path.is_file')
+def test_ref_parameter_include(is_file_mock, load_func):
+    is_file_mock.return_value = True
+    content = yaml.safe_load("""
+ref_val1: abc
+xyml.include: inc.yaml<<subvalue_2={{ref_val}}>>
+""")
+    expected = yaml.safe_load("""
+    ref_val1: abc
+    ref_val2: "{{ref_val1}}"
+    ref_val3: 123
+    """)
+    load_func.return_value = {"ref_val2": "{{ref_val1}}", "ref_val3": 123}
+    inc_resolver = IncludeResolver()
+    result = inc_resolver.resolve(content)
+
+    assert load_func.call_args[0][0] == str(Path.cwd() / "inc.yaml")
+    assert result == expected
+
+
+@mock.patch('yaml_extender.yaml_loader.load')
+@mock.patch('pathlib.Path.is_file')
+def test_dict_parameter_include(is_file_mock, load_func):
+    is_file_mock.return_value = True
+    content = yaml.safe_load("""
+dict_1:
+  subvalue_1:
+    sub_subvalue2: xyz
+xyml.include: inc.yaml<<inc_param={{dict_1}}>>
+""")
+    expected = yaml.safe_load("""
+dict_1:
+  subvalue_1:
+    sub_subvalue2: xyz
+ref_val: "{{dict_1.subvalue_1.sub_subvalue2}}"
+    """)
+    load_func.return_value = {"ref_val": "{{inc_param.subvalue_1.sub_subvalue2}}"}
     inc_resolver = IncludeResolver()
     result = inc_resolver.resolve(content)
 
