@@ -4,6 +4,7 @@ features:
 - references
 - includes
 - loops
+empty_param: "empty param is {{xyml.param.empty}}"
 first_feature: "{{ features.0 }}"
 tests:
   xyml.for: feature:features

@@ -11,6 +11,6 @@ res_dir = script_dir.parent / "resources"
 
 
 def test_reference_file():
-    resolved_file = XYmlFile(res_dir / "root.yaml", {"user": "simon"}, [Path("tests/resources/subdir")])
+    resolved_file = XYmlFile(res_dir / "root.yaml", {"user": "simon", "empty": ""}, [Path("tests/resources/subdir")])
     expected = yaml.safe_load((res_dir / "expected_file.yaml").read_text())
     assert resolved_file.content == expected
