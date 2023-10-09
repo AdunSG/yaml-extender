@@ -99,14 +99,14 @@ class ReferenceResolver(Resolver):
             if ref_val is not None:
                 if operation:
                     ref_val = operation.apply(ref_val)
-                # If resolved value is of type list, flatten it
-                if isinstance(ref_val, list):
-                    ref_val = LIST_FLATTEN_CHARACTER.join(ref_val)
+                # Check if the reference to be resolved is part of a string.
                 if ref_match.group(0) == value:
-                    # If the whole string is just a reference return the value without string replacement
-                    # in order to preserve float & int types
+                    # Preserve float & int and list types if reference is part of a string
                     return ref_val
                 else:
+                    # If resolved value is of type list, flatten it
+                    if isinstance(ref_val, list):
+                        ref_val = LIST_FLATTEN_CHARACTER.join(ref_val)
                     # Replace the reference string within the value
                     new_value = new_value.replace(ref_match.group(0), str(ref_val))
 
