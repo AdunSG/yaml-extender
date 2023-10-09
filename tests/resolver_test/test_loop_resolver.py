@@ -23,7 +23,7 @@ commands:
 - cmd: sh xyz
   from: curDir
 """)
-    loop_resolver = LoopResolver("root.yaml")
+    loop_resolver = LoopResolver()
     result = loop_resolver.resolve(content)
     assert result == expected
 
@@ -54,7 +54,7 @@ commands:
 - cmd: sh xyz
   from: second/path
 """)
-    loop_resolver = LoopResolver("root.yaml")
+    loop_resolver = LoopResolver()
     result = loop_resolver.resolve(content)
     assert result == expected
 
@@ -80,7 +80,7 @@ commands:
   - cmd: sh xyz
   - cmd: echo xyz
 """)
-    loop_resolver = LoopResolver("root.yaml")
+    loop_resolver = LoopResolver()
     result = loop_resolver.resolve(content)
     assert result == expected
 
@@ -112,7 +112,7 @@ commands:
 - cmd: sh xyz 123
 - cmd: sh xyz 456
 """)
-    loop_resolver = LoopResolver("root.yaml")
+    loop_resolver = LoopResolver()
     result = loop_resolver.resolve(content)
     assert result == expected
 
@@ -143,7 +143,39 @@ commands:
 - cmd: sh xyz 123
 - cmd: sh xyz 456
 """)
-    loop_resolver = LoopResolver("root.yaml")
+    loop_resolver = LoopResolver()
     result = loop_resolver.resolve(content)
     assert result == expected
 
+
+def test_loop_order():
+    content = yaml.safe_load("""
+array:
+  - value: 1
+  - value: 2
+  - value: 3
+  - value: 4
+
+commands:
+  - value: x
+  - xyml.for: element:array
+    xyml.content:
+    - value: "{{element.value}}"
+""")
+    expected = yaml.safe_load("""
+array:
+  - value: 1
+  - value: 2
+  - value: 3
+  - value: 4
+
+commands:
+  - value: x
+  - value: 1
+  - value: 2
+  - value: 3
+  - value: 4
+""")
+    loop_resolver = LoopResolver()
+    result = loop_resolver.resolve(content)
+    assert result == expected

@@ -35,8 +35,10 @@ class LoopResolver(Resolver):
                 if isinstance(resolved_loop_content, list):
                     # Keep list flat; don't create list of lists
                     del new_value[i]
-                    for value in resolved_loop_content:
-                        new_value.insert(i, value)
+                    for j, value in enumerate(resolved_loop_content):
+                        # Make sure to insert the element at the position of loop statement
+                        # Also take care of already inserted loop elements
+                        new_value.insert(i + j, value)
                 else:
                     new_value[i] = resolved_loop_content
         return new_value

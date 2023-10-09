@@ -12,19 +12,19 @@ tests:
 user_content: simon
 info: "Content is: Feature references, Feature includes, Feature loops,"
 todos:
-- cmd: generate.sh loops simon
+- cmd: generate.sh references simon
   executionOrder: 1
   name: Start
 - cmd: generate.sh includes simon
   executionOrder: 1
   name: Start
-- cmd: generate.sh references simon
+- cmd: generate.sh loops simon
   executionOrder: 1
   name: Start
 - cmd: 7za a -t7z files.7z *.txt
   executionOrder: 2
   name: Archive
-  path: build/loops
+  path: build/references
 - cmd: 7za a -t7z files.7z *.txt
   executionOrder: 2
   name: Archive
@@ -32,20 +32,20 @@ todos:
 - cmd: 7za a -t7z files.7z *.txt
   executionOrder: 2
   name: Archive
-  path: build/references
-- cmd: test.sh test_loops simon
+  path: build/loops
+- cmd: test.sh test_references simon
   executionOrder: 2
   name: Start
 - cmd: test.sh test_includes simon
   executionOrder: 2
   name: Start
-- cmd: test.sh test_references simon
+- cmd: test.sh test_loops simon
   executionOrder: 2
   name: Start
 - cmd: 7za a -t7z files.7z *.txt
   executionOrder: 3
   name: Archive
-  path: build/test/test_loops/*.log
+  path: build/test/test_references/*.log
 - cmd: 7za a -t7z files.7z *.txt
   executionOrder: 3
   name: Archive
@@ -53,4 +53,4 @@ todos:
 - cmd: 7za a -t7z files.7z *.txt
   executionOrder: 3
   name: Archive
-  path: build/test/test_references/*.log
+  path: build/test/test_loops/*.log
