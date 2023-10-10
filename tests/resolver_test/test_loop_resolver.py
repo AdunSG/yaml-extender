@@ -179,3 +179,43 @@ commands:
     loop_resolver = LoopResolver()
     result = loop_resolver.resolve(content)
     assert result == expected
+
+
+def test_loop_extend_list():
+    content = yaml.safe_load("""
+array:
+- name: second
+  value: 2
+- name: third
+  value: 3
+
+commands:
+  - name: first
+    value: 1
+    xyml.for: element:array
+    xyml.content:
+    - name: "{{element.name}}"
+      value: "{{element.value}}"
+  - name: fourth
+    value: 4
+""")
+    expected = yaml.safe_load("""
+array:
+- name: second
+  value: 2
+- name: third
+  value: 3
+
+commands:
+  - name: first
+    value: 1
+  - name: second
+    value: 2
+  - name: third
+    value: 3
+  - name: fourth
+    value: 4
+""")
+    loop_resolver = LoopResolver()
+    result = loop_resolver.resolve(content)
+    assert result == expected

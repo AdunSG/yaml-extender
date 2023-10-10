@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import re
-from pathlib import Path
 from typing import Any
 
 from yaml_extender.resolver.reference_resolver import ReferenceResolver
@@ -28,7 +27,7 @@ class LoopResolver(Resolver):
             for k, v in cur_value.items():
                 new_value[k] = self._Resolver__resolve(v, config)
             if LOOP_KEY in cur_value:
-                new_value = self.resolve_loop(cur_value[LOOP_KEY], new_value, config)
+                new_value = self.resolve_loop(cur_value[LOOP_KEY], copy.deepcopy(new_value), config)
         elif isinstance(cur_value, list):
             for i, x in enumerate(cur_value):
                 resolved_loop_content = self._Resolver__resolve(x, config)
@@ -44,12 +43,16 @@ class LoopResolver(Resolver):
         return new_value
 
     def resolve_loop(self, loop_desc, loop_config, config):
-        loop_values = []
+        other_content = []
         # Remove loop statement from dict
         del loop_config[LOOP_KEY]
         # Set initial value for resolution
         if LOOP_CONTENT_KEY in loop_config:
             loop_values = [loop_config[LOOP_CONTENT_KEY]]
+            del loop_config[LOOP_CONTENT_KEY]
+            # Keep track of values that might be in the same dict, but have nothing to do with the loop
+            if loop_config:
+                other_content = [loop_config]
         else:
             loop_values = [loop_config]
         # Iterate over possible multiloops
@@ -66,6 +69,8 @@ class LoopResolver(Resolver):
 
             # Replace the content with filled content
             loop_values = self.get_loop_content(loop_values, iteration_value, iterator)
+        if other_content:
+            loop_values = other_content + loop_values
         return loop_values
 
     def get_loop_content(self, loop_configs: list[dict], iteration_value: list, iterator: str):
