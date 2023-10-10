@@ -8,7 +8,7 @@ from yaml_extender import yaml_loader
 from yaml_extender.resolver.resolver import Resolver
 from yaml_extender.xyml_exception import RecursiveReferenceError, ReferenceNotFoundError, ExtYamlSyntaxError
 
-REFERENCE_REGEX = r'\{\{(.+?)(?::(.*?))?\}\}'
+REFERENCE_REGEX = r'\{\{(.+?)(?::(.*))?\}\}'
 ARRAY_REGEX = r'(.*)?\[(\d*)\]'
 LIST_FLATTEN_CHARACTER = " "
 
@@ -69,6 +69,33 @@ class ReferenceResolver(Resolver):
             new_value = self.resolve_reference(cur_value, config)
         return new_value
 
+    @staticmethod
+    def parse_references(value: str):
+        """
+        Returns a tuple (full_match, ref_name, default_value) for each occurrence of a xyml reference statement.
+        Excludes nested statements
+        """
+        # Todo: If this would be a generator function would it increase performance?
+        findings = []
+        start_idx = value.find("{{")
+        while start_idx != -1:
+            start_idx += 2
+            start_idx_2 = value.find("{{", start_idx)
+            end_idx = value.find("}}", start_idx)
+            while start_idx_2 != -1 and start_idx_2 < end_idx:
+                end_idx = value.find("}}", end_idx + 2)
+                start_idx_2 = value.find("{{", start_idx_2 + 2)
+            # Store finding
+            full_ref = value[start_idx-2:end_idx+2]
+            ref = value[start_idx:end_idx]    # +2 to strip brackets
+            if ":" in ref:
+                findings.append([full_ref] + [x.strip() for x in ref.split(":", maxsplit=1)])
+            else:
+                findings.append([full_ref, ref.strip(), None])
+            # Continue finding refs
+            start_idx = value.find("{{", end_idx)
+        return findings
+
     def resolve_reference(self, value: Any, config: dict, depth: int = 0) -> Any:
         if not isinstance(value, str) or "{" not in value:
             return value
@@ -76,10 +103,10 @@ class ReferenceResolver(Resolver):
             raise RecursiveReferenceError(value)
         new_value = value
         # In order to store the full match the whole regex is packed into a group
-        for ref_match in re.finditer(REFERENCE_REGEX, value):
-            ref = ref_match.group(1).strip()
-            default_value = ref_match.group(2)
-            if default_value:
+        for ref_match in ReferenceResolver.parse_references(value):
+            ref = ref_match[1]
+            default_value = ref_match[2]
+            if default_value is not None:
                 default_value = yaml_loader.parse_any_value(default_value.strip())
             # Resolve arithmetic operation
             operation = ArithmeticOperation.parse(ref)
@@ -100,7 +127,7 @@ class ReferenceResolver(Resolver):
                 if operation:
                     ref_val = operation.apply(ref_val)
                 # Check if the reference to be resolved is part of a string.
-                if ref_match.group(0) == value:
+                if ref_match[0] == value:
                     # Preserve float & int and list types if reference is part of a string
                     return ref_val
                 else:
@@ -108,7 +135,7 @@ class ReferenceResolver(Resolver):
                     if isinstance(ref_val, list):
                         ref_val = LIST_FLATTEN_CHARACTER.join(ref_val)
                     # Replace the reference string within the value
-                    new_value = new_value.replace(ref_match.group(0), str(ref_val))
+                    new_value = new_value.replace(ref_match[0], str(ref_val))
 
         if new_value == value:
             if self.fail_on_resolve:

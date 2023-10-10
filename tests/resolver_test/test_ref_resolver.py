@@ -8,6 +8,29 @@ from src.yaml_extender.resolver.reference_resolver import ReferenceResolver
 from src.yaml_extender.xyml_file import XYmlFile
 
 
+def test_parse_references():
+    val = "this is {{simple}}"
+    result = ReferenceResolver.parse_references(val)
+    assert result == [["{{simple}}", "simple", None]]
+    val = "default is {{ref : default}}"
+    result = ReferenceResolver.parse_references(val)
+    assert result == [["{{ref : default}}", "ref", "default"]]
+    val = "{{ref:}}"
+    result = ReferenceResolver.parse_references(val)
+    assert result == [["{{ref:}}", "ref", ""]]
+    val = "default {{ref:{{ default}}}}"
+    result = ReferenceResolver.parse_references(val)
+    assert result == [["{{ref:{{ default}}}}", "ref", "{{ default}}"]]
+    # Multiple values
+    val = "{{ref:{{default}}}} as well as {{ref2:{{default2}}}}"
+    result = ReferenceResolver.parse_references(val)
+    assert result == [["{{ref:{{default}}}}", "ref", "{{default}}"], ["{{ref2:{{default2}}}}", "ref2", "{{default2}}"]]
+    # Test whitespaces
+    val = "whitespaces {{ ref: {{default }} }}"
+    result = ReferenceResolver.parse_references(val)
+    assert result == [["{{ ref: {{default }} }}", "ref", "{{default }}"]]
+
+
 def test_basic_ref():
     content = yaml.safe_load("""
 ref_val_1: 123
@@ -124,6 +147,23 @@ dict_1:
   subvalue_1: abc
   subvalue_2: default
 """)
+    ref_resolver = ReferenceResolver()
+    result = ref_resolver.resolve(content)
+
+    assert result == expected
+
+
+def test_nested_default_value():
+    content = yaml.safe_load("""
+    default_value: 123
+    config_value: abc
+    glob_value: "{{config_value:{{default_value}}}}"
+    """)
+    expected = yaml.safe_load("""
+    default_value: 123
+    config_value: abc
+    glob_value: abc
+    """)
     ref_resolver = ReferenceResolver()
     result = ref_resolver.resolve(content)
 
