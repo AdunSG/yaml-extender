@@ -3,7 +3,6 @@ class ExtYamlError(Exception):
 
 
 class ReferenceNotFoundError(ExtYamlError):
-
     def __init__(self, reference: str, subref: str = ""):
         self.reference = reference
         self.subref = subref
@@ -17,7 +16,7 @@ class ExtYamlSyntaxError(ExtYamlError):
 
 
 class RecursiveReferenceError(RecursionError):
-
     def __init__(self, reference):
-        self.message = f"Maximum recursive depth reached, while resolving {reference}." \
-                       f"Is there a loop in your configuration?"
+        self.message = (
+            f"Maximum recursive depth reached, while resolving {reference}. Is there a loop in your configuration?"
+        )

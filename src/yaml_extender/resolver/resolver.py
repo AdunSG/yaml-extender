@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 import abc
-from pathlib import Path
 from typing import Any
 
 
 class Resolver(abc.ABC):
-
     def __init__(self, fail_on_resolve: bool = True):
         """
         Parameters

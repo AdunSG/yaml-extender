@@ -1,21 +1,18 @@
 from __future__ import annotations
 
-import copy
 import re
-from pathlib import Path
 from typing import Any
 
 from yaml_extender.resolver.reference_resolver import ReferenceResolver
 from yaml_extender.resolver.resolver import Resolver
-from yaml_extender.xyml_exception import RecursiveReferenceError, ReferenceNotFoundError, ExtYamlSyntaxError
+from yaml_extender.xyml_exception import ExtYamlSyntaxError
 
 LOOP_KEY = "xyml.for"
-INLINE_LOOP_REGEX = r'(\{\{\s*xyml\.for\s*:\s*([^:]+)\s*:\s*([^:]+)\s*:(.+)\}\})'
+INLINE_LOOP_REGEX = r"(\{\{\s*xyml\.for\s*:\s*([^:]+)\s*:\s*([^:]+)\s*:(.+)\}\})"
 MAXIMUM_REFERENCE_DEPTH = 30
 
 
 class InlineLoopResolver(Resolver):
-
     def __init__(self, fail_on_resolve: bool = True):
         super().__init__(fail_on_resolve)
         self.ref_resolver = ReferenceResolver(False)

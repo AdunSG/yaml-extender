@@ -16,7 +16,6 @@ PARAM_KEY = "param"
 
 
 class XYmlFile:
-
     def __init__(self, filepath: Path, params: Dict = None, include_dirs: List[Path] | None = None):
         self.params = params
         if include_dirs:
@@ -53,7 +52,5 @@ class XYmlFile:
         return processed_content
 
     def save(self, path: str, sort_keys=False):
-        with open(path, 'w') as file:
+        with open(path, "w") as file:
             yaml.dump(self.content, file, sort_keys=sort_keys)
-
-
