@@ -1,6 +1,17 @@
 Changelog
 =========
 
+Version 0.3.1, 2023-10-12
+-----------------------
+
+- Bugfix: Using references as default values works now as expected.
+- Bugfix: For loops should now resolve correctly if given as part of a dictionary.
+- Bugfix: For loops will not reverse the order of the elements.
+- Bugfix: Referencing lists in other lists will now extend the lists correctly.
+
+- Test: Added tests for above fixes
+- Test: Fixed problem with system test being cwd dependent.
+
 Version 0.3.0, 2023-08-31
 -----------------------
 
