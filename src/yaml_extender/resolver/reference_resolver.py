@@ -129,7 +129,7 @@ class ReferenceResolver(Resolver):
                 # Check if the reference to be resolved is part of a string.
                 if ref_match[0] == value:
                     # Preserve float & int and list types if reference is part of a string
-                    return ref_val
+                    new_value = ref_val
                 else:
                     # If resolved value is of type list, flatten it
                     if isinstance(ref_val, list):

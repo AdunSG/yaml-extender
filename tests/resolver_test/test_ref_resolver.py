@@ -273,6 +273,23 @@ value_2: 2
 
 
 @patch('yaml_extender.yaml_loader.load')
+def test_sub_ref(loader_mock):
+    content = yaml.safe_load("""
+dict_1:
+  sub_ref: abc
+value_2: "{{ dict_1.sub_ref }}"
+""")
+    loader_mock.return_value = content
+    file = XYmlFile(Path.cwd())
+    expected = yaml.safe_load("""
+dict_1:
+  sub_ref: abc
+value_2: abc
+""")
+    assert file.content == expected
+
+
+@patch('yaml_extender.yaml_loader.load')
 def test_env_ref(loader_mock):
     os.environ["TEST_VAL"] = "123"
     content = yaml.safe_load("""
@@ -412,9 +429,9 @@ def test_dict_list_ref(loader_mock):
     - first: x
       second: y
       third: z
-    first: "{{my_dict.first}}"
-    second: "{{my_dict.second}}"
-    third: "{{my_dict.third}}"
+    first: "first = {{my_dict.first}}"
+    second: "second = {{my_dict.second}}"
+    third: "third = {{my_dict.third}}"
     """)
     loader_mock.return_value = content
     file = XYmlFile(Path.cwd())
@@ -425,9 +442,9 @@ def test_dict_list_ref(loader_mock):
     - first: x
       second: y
       third: z
-    first: a x
-    second: b y
-    third: z
+    first: first = a x
+    second: second = b y
+    third: third = z
     """)
     assert file.content == expected
 
