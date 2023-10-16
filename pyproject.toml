@@ -24,7 +24,8 @@ dependencies = [
 homepage = "https://github.com/AdunSG/yaml-extender"
 
 [project.scripts]
-yaml-extender = "reader.__main__:main"
+yaml-extender = "yaml_extender.cli:main"
+yaml_extender = "yaml_extender.cli:main"
 
 [project.optional-dependencies]
 dev = [
