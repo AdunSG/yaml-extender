@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import re
 from pathlib import Path
 from typing import Any, List
@@ -12,12 +11,11 @@ import yaml_extender.logger as logger
 import yaml_extender.yaml_loader as yaml_loader
 
 
-INCLUDE_REGEX = r'([^<]+)\s*(?:<<(.*)>>)?'
+INCLUDE_REGEX = r"([^<]+)\s*(?:<<(.*)>>)?"
 INCLUDE_KEY = "xyml.include"
 
 
 class IncludeResolver(Resolver):
-
     def __init__(self, include_dirs: List[Path] | None = None, fail_on_resolve: bool = True):
         if include_dirs:
             self.include_dirs: List[Path] = [inc.absolute() for inc in include_dirs]
@@ -51,7 +49,7 @@ class IncludeResolver(Resolver):
         elif isinstance(cur_value, list):
             new_content = []
             for i, x in enumerate(cur_value):
-                new_value = (self.__resolve_inc(x, config))
+                new_value = self.__resolve_inc(x, config)
                 if isinstance(new_value, list):
                     new_content.extend(new_value)
                 else:

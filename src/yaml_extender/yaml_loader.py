@@ -17,7 +17,7 @@ def load(path: str) -> dict:
         valid_path = Path(path)
         if not valid_path.is_file():
             raise FileNotFoundError(f"Unable to resolve {path}")
-    with open(valid_path, 'r') as file:
+    with open(valid_path, "r") as file:
         content = yaml.safe_load(file)
     return content
 

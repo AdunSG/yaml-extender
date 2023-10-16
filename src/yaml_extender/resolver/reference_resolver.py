@@ -1,27 +1,27 @@
 from __future__ import annotations
 
 import re
-from pathlib import Path
 from typing import Any, Optional
 
 from yaml_extender import yaml_loader
 from yaml_extender.resolver.resolver import Resolver
-from yaml_extender.xyml_exception import RecursiveReferenceError, ReferenceNotFoundError, ExtYamlSyntaxError
+from yaml_extender.xyml_exception import RecursiveReferenceError, ReferenceNotFoundError
 
-REFERENCE_REGEX = r'\{\{(.+?)(?::(.*))?\}\}'
-ARRAY_REGEX = r'(.*)?\[(\d*)\]'
+REFERENCE_REGEX = r"\{\{(.+?)(?::(.*?))?\}\}"
+ARRAY_REGEX = r"(.*)?\[(\d*)\]"
 LIST_FLATTEN_CHARACTER = " "
 
 MAXIMUM_REFERENCE_DEPTH = 30
 
 
 class ArithmeticOperation:
-
-    SUPPORTED_FUNCS = {"+": lambda x, y: x + y,
-                       "-": lambda x, y: x - y,
-                       "*": lambda x, y: x * y,
-                       "/": lambda x, y: x / y}
-    ARITHMETIC_REGEX = r'(.+)([' + ''.join(["\\" + k for k in SUPPORTED_FUNCS.keys()]) + r'])\s*(\d+)'
+    SUPPORTED_FUNCS = {
+        "+": lambda x, y: x + y,
+        "-": lambda x, y: x - y,
+        "*": lambda x, y: x * y,
+        "/": lambda x, y: x / y,
+    }
+    ARITHMETIC_REGEX = r"(.+)([" + "".join(["\\" + k for k in SUPPORTED_FUNCS.keys()]) + r"])\s*(\d+)"
 
     def __init__(self, reference: str, operation: str, value: str):
         self.reference = reference.strip()
@@ -45,7 +45,6 @@ class ArithmeticOperation:
 
 
 class ReferenceResolver(Resolver):
-
     def __init__(self, fail_on_resolve: bool = True):
         super().__init__(fail_on_resolve)
 
@@ -86,8 +85,8 @@ class ReferenceResolver(Resolver):
                 end_idx = value.find("}}", end_idx + 2)
                 start_idx_2 = value.find("{{", start_idx_2 + 2)
             # Store finding
-            full_ref = value[start_idx-2:end_idx+2]
-            ref = value[start_idx:end_idx]    # +2 to strip brackets
+            full_ref = value[start_idx - 2 : end_idx + 2]
+            ref = value[start_idx:end_idx]  # +2 to strip brackets
             if ":" in ref:
                 findings.append([full_ref] + [x.strip() for x in ref.split(":", maxsplit=1)])
             else:

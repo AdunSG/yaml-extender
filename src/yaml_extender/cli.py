@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import List, Dict
 
 from yaml_extender import yaml_loader
-from yaml_extender.resolver import reference_resolver
 from yaml_extender.xyml_file import XYmlFile
 from yaml_extender.logger import get_logger
 

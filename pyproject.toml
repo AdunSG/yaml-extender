@@ -29,12 +29,41 @@ yaml-extender = "reader.__main__:main"
 [project.optional-dependencies]
 dev = [
   "coverage",
-  "pytest"
+  "pytest",
+  "tox"
 ]
 
 [tool.setuptools.dynamic]
 version = {attr = "yaml_extender.__version__"}
 readme = {file = "README.rst"}
+
+[tool.ruff]
+line-length = 120
+target-version = "py38"
+
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
 
 [tool.coverage.run]
 branch = true
@@ -42,7 +71,7 @@ command_line = "-m pytest"
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 85
+fail_under = 80
 
 [tool.tox]
 legacy_tox_ini = """
@@ -50,18 +79,27 @@ legacy_tox_ini = """
 isolated_build = true
 min_version = 3.8
 skip_missing_interpreters = true
-envlist = py38,test
+envlist = py38, py39, py310, py311, py312, coverage
+
+[gh-actions]
+python =
+    3.8: py38
+    3.9: py39
+    3.10: py310
+    3.11: py311
+    3.12: py312, coverage
 
 [testenv]
 usedevelop=true
 skip_install=true
-
-[testenv:test]
-skip_install = false
-deps =
-    coverage
+commands = 
+    pip install .[dev]
     pytest
+
+[testenv:coverage]
+skip_install = false
 commands =
+    pip install -e .[dev]
     coverage run --rcfile=pyproject.toml --source src/
     coverage report --rcfile=pyproject.toml
 

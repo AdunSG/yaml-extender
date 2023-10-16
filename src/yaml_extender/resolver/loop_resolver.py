@@ -6,16 +6,15 @@ from typing import Any
 
 from yaml_extender.resolver.reference_resolver import ReferenceResolver
 from yaml_extender.resolver.resolver import Resolver
-from yaml_extender.xyml_exception import RecursiveReferenceError, ReferenceNotFoundError, ExtYamlSyntaxError
+from yaml_extender.xyml_exception import ExtYamlSyntaxError
 
 LOOP_KEY = "xyml.for"
 LOOP_CONTENT_KEY = "xyml.content"
-LOOP_REGEX = r'(.+):(.+)'
+LOOP_REGEX = r"(.+):(.+)"
 MAXIMUM_REFERENCE_DEPTH = 30
 
 
 class LoopResolver(Resolver):
-
     def __init__(self, fail_on_resolve: bool = True):
         super().__init__(fail_on_resolve)
         self.ref_resolver = ReferenceResolver(False)
